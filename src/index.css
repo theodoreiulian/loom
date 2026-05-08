@@ -1,0 +1,381 @@
+@import "tailwindcss";
+
+@theme {
+  /* === PURE BLACK & WHITE LIQUID GLASS === */
+
+  /* Canvas & Surfaces — everything is white-tinted glass over pure black */
+  --color-canvas: #000000;
+  --color-surface: rgba(255, 255, 255, 0.025);
+  --color-surface-strong: rgba(255, 255, 255, 0.055);
+  --color-surface-hover: rgba(255, 255, 255, 0.075);
+  --color-surface-raised: rgba(255, 255, 255, 0.10);
+
+  /* Borders & Highlights */
+  --color-border: rgba(255, 255, 255, 0.10);
+  --color-border-hover: rgba(255, 255, 255, 0.18);
+  --color-border-focus: rgba(255, 255, 255, 0.40);
+  --color-highlight: rgba(255, 255, 255, 0.05);
+  --color-highlight-strong: rgba(255, 255, 255, 0.10);
+
+  /* Text — pure white or white with alpha */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.50);
+  --color-text-muted: rgba(255, 255, 255, 0.30);
+
+  /* Typography */
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  /* Shadows — pure black shadows, white glows */
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.50), 0 2px 8px rgba(0, 0, 0, 0.30);
+  --shadow-glass-lg: 0 16px 48px rgba(0, 0, 0, 0.60), 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.06);
+
+  /* Easing */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000000;
+  font-family: var(--font-sans);
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === GLASSMORPHISM UTILITIES === */
+
+.glass {
+  background: var(--color-surface);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-glass), inset 0 1px 0 var(--color-highlight);
+  transition: border-color 0.2s var(--ease-out-quart), box-shadow 0.2s var(--ease-out-quart);
+}
+
+.glass-strong {
+  background: var(--color-surface-strong);
+  backdrop-filter: blur(32px) saturate(1.3);
+  -webkit-backdrop-filter: blur(32px) saturate(1.3);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-glass), inset 0 1px 0 var(--color-highlight-strong);
+  transition: border-color 0.2s var(--ease-out-quart), box-shadow 0.2s var(--ease-out-quart);
+}
+
+.glass:hover {
+  border-color: var(--color-border-hover);
+}
+
+.glass-strong:hover {
+  border-color: var(--color-border-hover);
+}
+
+/* === LIQUID GLASS (sidebar & special elements) === */
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px) saturate(1.1);
+  -webkit-backdrop-filter: blur(20px) saturate(1.1);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.02),
+    0 4px 20px rgba(0, 0, 0, 0.45);
+  transition: all 0.25s var(--ease-out-quart);
+}
+
+.liquid-glass:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+    0 6px 28px rgba(0, 0, 0, 0.55);
+  transform: translateY(-1px);
+}
+
+.liquid-glass-icon {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.2s var(--ease-out-quart);
+}
+
+.liquid-glass:hover .liquid-glass-icon {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+/* === BUTTONS === */
+
+.glass-button {
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  color: rgba(255, 255, 255, 0.70);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.35);
+  transition: all 0.2s var(--ease-out-quart);
+  cursor: pointer;
+}
+
+.glass-button:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 100%);
+  border-color: rgba(255, 255, 255, 0.20);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 6px 24px rgba(0,0,0,0.40);
+  transform: scale(1.02);
+}
+
+.glass-button:active {
+  transform: scale(0.97);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.glass-button-primary {
+  background: linear-gradient(180deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.05) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 2px 24px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.20);
+}
+
+.glass-button-primary:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%);
+  border-color: rgba(255,255,255,0.32);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 32px rgba(255,255,255,0.09), 0 6px 20px rgba(0,0,0,0.22);
+}
+
+.glass-button-primary:active {
+  background: linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%);
+  transform: scale(0.97);
+}
+
+/* Toggle / pill buttons */
+.glass-toggle {
+  background: rgba(0, 0, 0, 0.50);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 9999px;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s var(--ease-out-quart);
+  cursor: pointer;
+}
+
+.glass-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.glass-toggle-active {
+  background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #ffffff;
+  border-color: rgba(255,255,255,0.20);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.20), 0 2px 20px rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.glass-toggle-active:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,0.17) 0%, rgba(255,255,255,0.07) 100%);
+  border-color: rgba(255,255,255,0.28);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 2px 28px rgba(255,255,255,0.07), 0 3px 10px rgba(0,0,0,0.20);
+}
+
+/* Input / textarea */
+.glass-input {
+  background: rgba(0, 0, 0, 0.60);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  transition: border-color 0.2s var(--ease-out-quart), box-shadow 0.2s var(--ease-out-quart);
+  outline: none;
+  transform: translateZ(0);
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.glass-input:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* === REACT FLOW OVERRIDES === */
+
+.react-flow {
+  --xy-edge-stroke: rgba(255, 255, 255, 0.12);
+  --xy-edge-stroke-selected: rgba(255, 255, 255, 0.60);
+  --xy-edge-stroke-width: 2;
+  --xy-handle-background: rgba(0, 0, 0, 0.85);
+  --xy-handle-border-color: rgba(255, 255, 255, 0.25);
+  --xy-handle-border-width: 1.5;
+  --xy-handle-width: 12;
+  --xy-handle-height: 12;
+  --xy-node-border-default: none;
+  --xy-node-boxshadow-default: none;
+  --xy-connectionline-stroke: #ffffff;
+  --xy-connectionline-stroke-width: 2.5;
+}
+
+.react-flow__node {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.react-flow__node.selected .node-card {
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.30), 0 0 30px rgba(255, 255, 255, 0.06), var(--shadow-glass-lg);
+}
+
+/* Remove my overrides for z-index since we want edges under nodes */
+svg.react-flow__connectionline {
+  z-index: 0 !important;
+}
+
+.react-flow__edge .react-flow__edge-path {
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:focus .react-flow__edge-path {
+  stroke: rgba(255, 255, 255, 0.70);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.25));
+}
+
+.react-flow__handle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.80);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.60);
+  transition: all 0.2s var(--ease-out-quart);
+}
+
+.react-flow__handle:hover {
+  background: #ffffff;
+  border-color: #ffffff;
+  transform: scale(1.4);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.20);
+}
+
+.react-flow__handle.connecting {
+  background: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.25);
+}
+
+.react-flow__handle.valid {
+  background: #ffffff;
+  border-color: rgba(255, 255, 255, 0.70);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.15);
+}
+
+.react-flow__background {
+  background-color: #000000;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* === SCROLLBAR === */
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+input, textarea, select {
+  outline: none;
+  font-family: var(--font-sans);
+}
+
+/* === ANIMATIONS === */
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in {
+  animation: slide-in-right 0.35s var(--ease-out-expo) forwards;
+}
+
+@keyframes fade-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s var(--ease-out-expo) forwards;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(255, 255, 255, 0.10); }
+  50% { box-shadow: 0 0 14px rgba(255, 255, 255, 0.25); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes cable-flow {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+
+.animate-cable-flow {
+  animation: cable-flow 0.8s linear infinite;
+}
+
+/* Stagger children */
+.stagger-1 { animation-delay: 0.05s; opacity: 0; }
+.stagger-2 { animation-delay: 0.10s; opacity: 0; }
+.stagger-3 { animation-delay: 0.15s; opacity: 0; }
+.stagger-4 { animation-delay: 0.20s; opacity: 0; }
+.stagger-5 { animation-delay: 0.25s; opacity: 0; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in,
+  .animate-fade-up,
+  .animate-pulse-glow,
+  .animate-cable-flow {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
