@@ -62,6 +62,25 @@ Existing layouts are defined in `src/templates.ts`. You can add new pre-configur
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 
+## Contributing
+
+Loom is open to collaboration. If you've built a meaningful improvement — a new node type, a new API integration, a UI enhancement — and think it belongs in the main repo, you're welcome to propose it.
+
+All contributions go through a pull request review process and require approval before being merged.
+
+### How to contribute
+
+1. **Fork the repository** on GitHub.
+2. **Create a branch** for your change:
+   ```bash
+   git checkout -b my-feature
+   ```
+3. **Make your changes**, keeping them focused and minimal — one feature or fix per pull request.
+4. **Test your changes** locally with `npm run dev` and make sure `npm run build` passes without errors.
+5. **Open a pull request** against the `main` branch with a clear description of what you changed and why.
+
+Pull requests will be reviewed and merged at the maintainer's discretion.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
