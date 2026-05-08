@@ -18,6 +18,7 @@
 - Node.js (v18+)
 - npm or yarn
 - A Gemini API Key (for image/text generation)
+- A Kling API Key (optional, for video generation)
 
 ### Installation
 
