@@ -1,4 +1,5 @@
 import { Plus, Trash2, Settings } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 interface HeaderProps {
   onOpenSettings: () => void;
@@ -17,8 +18,9 @@ export default function Header({ onOpenSettings, onAddNode, onClearCanvas }: Hea
   return (
     <header className="absolute top-3 left-3 right-3 z-50 flex items-center">
       <div className="glass-strong w-full flex items-center px-2 py-1.5 rounded-2xl">
-        {/* Left: Clear button */}
-        <div className="flex items-center pl-2">
+        {/* Left: Logo + Clear button */}
+        <div className="flex items-center gap-2 pl-2">
+          <img src={logo} alt="Loom" className="w-7 h-7 rounded-lg" />
           <button
             onClick={onClearCanvas}
             className="glass-button flex items-center gap-1.5 px-3 py-1.5 text-[12px]"

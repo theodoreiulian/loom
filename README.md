@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src/assets/logo.png" alt="Loom" width="120" />
+</p>
+
 # Loom
 
 **Loom** is a modern, node-based AI workflow editor designed for creative professionals and developers. Orchestrate complex AI pipelines for image and video generation through an intuitive visual interface.
