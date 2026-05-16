@@ -23,7 +23,7 @@ function createPromptNode(position: { x: number; y: number }): Node<PromptNodeDa
     id: getId(),
     type: 'prompt',
     position,
-    data: { prompt: '', referenceImages: [] },
+    data: { prompt: '', referenceImages: [], generatedImages: [] },
   };
 }
 

@@ -1,6 +1,7 @@
 export interface PromptNodeData extends Record<string, unknown> {
   prompt: string;
   referenceImages: string[];
+  generatedImages: string[];
 }
 
 export interface PromptEngineerNodeData extends Record<string, unknown> {

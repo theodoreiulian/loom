@@ -87,7 +87,8 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
     'bg-[rgba(255,255,255,0.18)]';
 
   return (
-    <div className="node-card w-[22rem] rounded-2xl glass overflow-hidden">
+    <div className="relative">
+      <div className="node-card w-[22rem] rounded-2xl glass overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.03)]">
         <div className="liquid-glass-icon w-6 h-6 flex items-center justify-center">
@@ -124,9 +125,9 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
 
         {/* Error */}
         {data.errorMessage && (
-          <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
+          <div className="nodrag flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
             <AlertCircle className="w-3.5 h-3.5 text-[rgba(255,255,255,0.40)] shrink-0 mt-0.5" />
-            <span className="text-[12px] text-[rgba(255,255,255,0.35)]">{data.errorMessage}</span>
+            <span className="select-text text-[12px] text-[rgba(255,255,255,0.35)]">{data.errorMessage}</span>
           </div>
         )}
 
@@ -142,6 +143,7 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
         </button>
       </div>
 
+      </div>
       {/* Handles */}
       <Handle type="target" position={Position.Left} id="video-text-in" className={HANDLE_STYLE} style={{ top: '35%' }} />
       <Handle type="target" position={Position.Left} id="video-image-in" className={HANDLE_STYLE} style={{ top: '65%' }} />

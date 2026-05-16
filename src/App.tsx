@@ -100,6 +100,7 @@ function Flow() {
             data: {
               prompt: '',
               referenceImages: [],
+              generatedImages: [],
             } as PromptNodeData,
           };
           break;
@@ -183,7 +184,7 @@ function Flow() {
             id: getId(),
             type: 'prompt',
             position: { x: position.x - 200, y: position.y },
-            data: { prompt: '', referenceImages: [] } as PromptNodeData,
+            data: { prompt: '', referenceImages: [], generatedImages: [] } as PromptNodeData,
           };
           break;
         case 'imageGen':

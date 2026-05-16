@@ -1,13 +1,37 @@
-import { memo, useCallback, useId } from 'react';
-import { Handle, Position, useReactFlow } from '@xyflow/react';
-import { Type, ImagePlus, X } from 'lucide-react';
-import type { PromptNodeData } from '../types';
+import { memo, useCallback, useId, useEffect, useRef, useMemo, useState } from 'react';
+import { Handle, Position, useReactFlow, useEdges } from '@xyflow/react';
+import { Type, ImagePlus, X, Link2 } from 'lucide-react';
+import type { PromptNodeData, ImageGenNodeData } from '../types';
 
 const HANDLE_STYLE = '!bg-white !border-[rgba(255,255,255,0.5)] !shadow-[0_0_10px_rgba(255,255,255,0.15)]';
 
 function PromptNode({ id, data }: { id: string; data: PromptNodeData }) {
-  const { updateNodeData } = useReactFlow();
+  const { updateNodeData, getNode } = useReactFlow();
+  const edges = useEdges();
   const fileInputId = useId();
+
+  const connectedGenNode = useMemo(() => {
+    const edge = edges.find((e) => e.target === id && e.targetHandle === 'prompt-gen-image-in');
+    if (!edge) return null;
+    return getNode(edge.source) ?? null;
+  }, [edges, id, getNode]);
+
+  const connectedGenImages: string[] =
+    connectedGenNode?.type === 'imageGen'
+      ? ((connectedGenNode.data as ImageGenNodeData).resultImages ?? [])
+      : [];
+
+  const lastGenKeyRef = useRef('');
+  const genKey = connectedGenImages.join('|||');
+
+  useEffect(() => {
+    if (lastGenKeyRef.current === genKey) return;
+    lastGenKeyRef.current = genKey;
+    updateNodeData(id, (prev: Record<string, unknown>) => ({
+      ...(prev as PromptNodeData),
+      generatedImages: genKey ? genKey.split('|||') : [],
+    }));
+  }, [genKey, id, updateNodeData]);
 
   const handlePromptChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -16,30 +40,58 @@ function PromptNode({ id, data }: { id: string; data: PromptNodeData }) {
     [id, data, updateNodeData]
   );
 
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const appendImages = useCallback(
+    (files: File[]) => {
+      const imageFiles = files.filter((f) => f.type.startsWith('image/'));
+      if (imageFiles.length === 0) return;
+      const readers = imageFiles.map(
+        (file) =>
+          new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          })
+      );
+      Promise.all(readers).then((newImages) => {
+        const current = (getNode(id)?.data as PromptNodeData)?.referenceImages ?? [];
+        updateNodeData(id, { referenceImages: [...current, ...newImages] });
+      });
+    },
+    [id, getNode, updateNodeData]
+  );
+
   const handleImageUpload = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files || files.length === 0) return;
-
-      const fileArray = Array.from(files);
-      const readers = fileArray.map((file) => {
-        return new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
-        });
-      });
-
-      Promise.all(readers).then((newImages) => {
-        updateNodeData(id, (prev: Record<string, unknown>) => {
-          const prevData = prev as PromptNodeData;
-          return { ...prevData, referenceImages: [...(prevData.referenceImages || []), ...newImages] };
-        });
-      });
-
+      if (!e.target.files) return;
+      appendImages(Array.from(e.target.files));
       e.target.value = '';
     },
-    [id, updateNodeData]
+    [appendImages]
+  );
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    if (!e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
+      appendImages(Array.from(e.dataTransfer.files));
+    },
+    [appendImages]
   );
 
   const removeImage = useCallback(
@@ -52,7 +104,8 @@ function PromptNode({ id, data }: { id: string; data: PromptNodeData }) {
   );
 
   return (
-    <div className="node-card w-[22rem] rounded-2xl glass overflow-hidden">
+    <div className="relative">
+      <div className="node-card w-[22rem] rounded-2xl glass overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.03)]">
         <div className="liquid-glass-icon w-6 h-6 flex items-center justify-center">
@@ -72,16 +125,7 @@ function PromptNode({ id, data }: { id: string; data: PromptNodeData }) {
         />
 
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[12px] text-[rgba(255,255,255,0.40)] font-medium">Reference Images</span>
-            <label
-              htmlFor={fileInputId}
-              className="nodrag flex items-center gap-1 text-[12px] text-[rgba(255,255,255,0.30)] hover:text-[rgba(255,255,255,0.70)] transition-colors cursor-pointer"
-            >
-              <ImagePlus className="w-3 h-3" />
-              Add
-            </label>
-          </div>
+          <span className="text-[12px] text-[rgba(255,255,255,0.40)] font-medium block mb-2">Reference Images</span>
           <input
             id={fileInputId}
             type="file"
@@ -90,35 +134,47 @@ function PromptNode({ id, data }: { id: string; data: PromptNodeData }) {
             onChange={handleImageUpload}
             className="hidden"
           />
-          {data.referenceImages && data.referenceImages.length > 0 ? (
-            <div className="grid grid-cols-3 gap-2">
-              {data.referenceImages.map((img, idx) => (
-                <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden border border-[rgba(255,255,255,0.06)]">
-                  <img src={img} alt="" className="w-full h-full object-cover" />
-                  <button
-                    onClick={() => removeImage(idx)}
-                    className="absolute top-1.5 right-1.5 w-5 h-5 rounded-lg glass-strong flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:border-[rgba(255,255,255,0.15)]"
-                  >
-                    <X className="w-2.5 h-2.5 text-[rgba(255,255,255,0.80)]" />
-                  </button>
+          <div
+            className={`grid grid-cols-3 gap-2 rounded-xl transition-colors ${isDragOver ? 'outline outline-1 outline-[rgba(255,255,255,0.20)] bg-[rgba(255,255,255,0.03)]' : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            {data.referenceImages?.map((img, idx) => (
+              <div key={`manual-${idx}`} className="relative group aspect-square rounded-xl overflow-hidden border border-[rgba(255,255,255,0.06)]">
+                <img src={img} alt="" className="w-full h-full object-cover" />
+                <button
+                  onClick={() => removeImage(idx)}
+                  className="absolute top-1.5 right-1.5 w-5 h-5 rounded-lg glass-strong flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:border-[rgba(255,255,255,0.15)]"
+                >
+                  <X className="w-2.5 h-2.5 text-[rgba(255,255,255,0.80)]" />
+                </button>
+              </div>
+            ))}
+            {connectedGenImages.map((img, idx) => (
+              <div key={`gen-${idx}`} className="relative aspect-square rounded-xl overflow-hidden border border-[rgba(255,255,255,0.10)]">
+                <img src={img} alt="" className="w-full h-full object-cover" />
+                <div className="absolute bottom-1 right-1 w-4 h-4 rounded-md bg-[rgba(0,0,0,0.60)] flex items-center justify-center">
+                  <Link2 className="w-2.5 h-2.5 text-[rgba(255,255,255,0.60)]" />
                 </div>
-              ))}
-            </div>
-          ) : (
+              </div>
+            ))}
             <label
               htmlFor={fileInputId}
-              className="nodrag flex flex-col items-center justify-center gap-1.5 h-[72px] rounded-xl border border-dashed border-[rgba(255,255,255,0.06)] bg-[rgba(0,0,0,0.40)] cursor-pointer hover:border-[rgba(255,255,255,0.12)] transition-colors"
+              className="nodrag aspect-square rounded-xl border border-dashed border-[rgba(255,255,255,0.08)] bg-[rgba(0,0,0,0.30)] flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[rgba(255,255,255,0.18)] hover:bg-[rgba(255,255,255,0.03)] transition-colors"
             >
-              <ImagePlus className="w-5 h-5 text-[rgba(255,255,255,0.15)]" />
-              <span className="text-[11px] text-[rgba(255,255,255,0.20)]">Click to upload</span>
+              <ImagePlus className="w-4 h-4 text-[rgba(255,255,255,0.20)]" />
+              <span className="text-[10px] text-[rgba(255,255,255,0.18)]">Add</span>
             </label>
-          )}
+          </div>
         </div>
       </div>
 
+      </div>
       {/* Handles */}
       <Handle type="source" position={Position.Right} id="prompt-text-out" className={HANDLE_STYLE} style={{ top: '35%' }} />
       <Handle type="source" position={Position.Right} id="prompt-image-out" className={HANDLE_STYLE} style={{ top: '65%' }} />
+      <Handle type="target" position={Position.Left} id="prompt-gen-image-in" className={HANDLE_STYLE} style={{ top: '75%' }} />
     </div>
   );
 }

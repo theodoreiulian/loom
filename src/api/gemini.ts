@@ -67,7 +67,25 @@ export async function generateImageWithGemini(
 
   const data = await response.json();
 
+  const blockReason = data.promptFeedback?.blockReason;
+  if (blockReason) {
+    if (blockReason === 'SAFETY') {
+      throw new Error('Blocked by Gemini safety filters. Try rephrasing your prompt.');
+    }
+    throw new Error(
+      'Request blocked by Gemini (reason: ' + blockReason + '). ' +
+      'This often happens with certain reference images or prompt content — try a different image or prompt.'
+    );
+  }
+
   for (const candidate of data.candidates || []) {
+    const finishReason = candidate.finishReason;
+    if (finishReason && finishReason !== 'STOP') {
+      if (finishReason === 'SAFETY') {
+        throw new Error('Blocked by Gemini safety filters. Try rephrasing your prompt.');
+      }
+      throw new Error('Generation stopped early (reason: ' + finishReason + '). Try a different prompt.');
+    }
     for (const part of candidate.content?.parts || []) {
       if (part.inlineData?.data) {
         return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
@@ -75,7 +93,7 @@ export async function generateImageWithGemini(
     }
   }
 
-  throw new Error('No image was generated. Response: ' + JSON.stringify(data));
+  throw new Error('No image was returned. The model responded but produced no image data — try again or use a different prompt.');
 }
 
 export const DEFAULT_IMAGE_SYSTEM_PROMPT = `You are an elite prompt engineer specializing in AI image generation. Your job is to transform rough, vague, or simple user ideas into highly detailed, vivid, production-ready image generation prompts.

@@ -264,8 +264,8 @@ svg.react-flow__connectionline {
 }
 
 .react-flow__handle {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.80);
   border: 1.5px solid rgba(255, 255, 255, 0.25);
@@ -273,10 +273,19 @@ svg.react-flow__connectionline {
   transition: all 0.2s var(--ease-out-quart);
 }
 
+.react-flow__handle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+}
+
 .react-flow__handle:hover {
   background: #ffffff;
   border-color: #ffffff;
-  transform: scale(1.4);
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.20);
 }
 
