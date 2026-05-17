@@ -1,10 +1,18 @@
+# Loom
+
+**Loom** is a modern, node-based AI workflow editor designed for creative professionals and developers. Orchestrate complex AI pipelines for image and video generation through an intuitive visual interface.
+
 <p align="center">
   <img src="src/assets/logo.png" alt="Loom" width="120" />
 </p>
 
-# Loom
+## Demo
 
-**Loom** is a modern, node-based AI workflow editor designed for creative professionals and developers. Orchestrate complex AI pipelines for image and video generation through an intuitive visual interface.
+See Loom in action — building and running AI generation workflows:
+
+https://github.com/user-attachments/assets/4409bccf-f4c1-4f6c-99e6-c681973ec66c
+
+https://github.com/user-attachments/assets/275e0d03-d1ae-4cd5-9e8e-520b84480de8
 
 ## Features
 
@@ -54,9 +62,6 @@ Loom is designed to be highly extensible. Here's how you can add your own modifi
 2. Register your node in `src/nodes/index.ts`.
 3. Add the corresponding data interface in `src/types.ts`.
 4. Update the `Sidebar` to include your new node for drag-and-drop.
-
-### Customizing Templates
-Existing layouts are defined in `src/templates.ts`. You can add new pre-configured workflows by adding a new template definition to the `TEMPLATES` object.
 
 ## Technology Stack
 

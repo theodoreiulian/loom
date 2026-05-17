@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Demo videos — hosted as GitHub attachment URLs, not committed
+src/assets/loom-demo-*.mov
+src/assets/loom-demo-*.mp4
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
