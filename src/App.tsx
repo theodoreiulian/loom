@@ -24,13 +24,12 @@ import ApiKeyModal from './components/ApiKeyModal';
 import { SettingsPanelProvider } from './context/SettingsPanelContext';
 import type { PromptNodeData, PromptEngineerNodeData, ImageGenNodeData, VideoGenNodeData } from './types';
 import { DEFAULT_IMAGE_SYSTEM_PROMPT, DEFAULT_VIDEO_SYSTEM_PROMPT } from './api/gemini';
-import { loadTemplate } from './templates';
 
 let idCounter = 0;
 const getId = () => `node_${++idCounter}`;
 
 function Flow() {
-  const { screenToFlowPosition, addNodes, getViewport } = useReactFlow();
+  const { screenToFlowPosition, addNodes } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showSettings, setShowSettings] = useState(false);
@@ -70,7 +69,6 @@ function Flow() {
     (event: React.DragEvent) => {
       event.preventDefault();
 
-      const templateId = event.dataTransfer.getData('application/newton-template');
       const type = event.dataTransfer.getData('application/reactflow');
       const offsetX = parseInt(event.dataTransfer.getData('application/loom-offset-x') || '0', 10);
       const offsetY = parseInt(event.dataTransfer.getData('application/loom-offset-y') || '0', 10);
@@ -79,13 +77,6 @@ function Flow() {
         x: event.clientX - offsetX + 12,
         y: event.clientY - offsetY,
       });
-
-      if (templateId) {
-        const { nodes: newNodes, edges: newEdges } = loadTemplate(templateId, position);
-        setNodes((nds) => [...nds, ...newNodes]);
-        setEdges((eds) => [...eds, ...newEdges]);
-        return;
-      }
 
       if (!type) return;
 
@@ -255,18 +246,6 @@ function Flow() {
     }
   }, [setNodes, setEdges]);
 
-  const handleLoadTemplate = useCallback(
-    (templateId: string) => {
-      const vp = getViewport();
-      const centerX = (-vp.x + window.innerWidth / 2) / vp.zoom;
-      const centerY = (-vp.y + window.innerHeight / 2) / vp.zoom;
-      const { nodes: newNodes, edges: newEdges } = loadTemplate(templateId, { x: centerX, y: centerY });
-      setNodes((nds) => [...nds, ...newNodes]);
-      setEdges((eds) => [...eds, ...newEdges]);
-    },
-    [getViewport, setNodes, setEdges]
-  );
-
   const onEdgeContextMenu = useCallback(
     (event: React.MouseEvent, edge: any) => {
       event.preventDefault();
@@ -294,7 +273,7 @@ function Flow() {
         onClearCanvas={handleClearCanvas}
       />
 
-      <Sidebar onDragStart={handleDragStart} onLoadTemplate={handleLoadTemplate} />
+      <Sidebar onDragStart={handleDragStart} />
 
       <div ref={reactFlowWrapper} className="w-full h-full">
         <ReactFlow
