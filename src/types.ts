@@ -1,6 +1,5 @@
 export interface PromptNodeData extends Record<string, unknown> {
   prompt: string;
-  referenceImages: string[];
 }
 
 export interface ImageInputNodeData extends Record<string, unknown> {

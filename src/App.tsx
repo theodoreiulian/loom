@@ -21,7 +21,6 @@ type HandleKind = 'text' | 'image';
 const HANDLE_KIND: Record<string, HandleKind> = {
   // sources
   'prompt-text-out': 'text',
-  'prompt-image-out': 'image',
   'image-input-out': 'image',
   'engineer-out': 'text',
   'image-out': 'image',
@@ -32,7 +31,6 @@ const HANDLE_KIND: Record<string, HandleKind> = {
   'image-image-in': 'image',
   'video-text-in': 'text',
   'video-image-in': 'image',
-  'prompt-image-in': 'image',
 };
 
 const isValidConnection = (c: Connection | FlowEdge): boolean => {
@@ -54,6 +52,7 @@ import ApiKeyModal from './components/ApiKeyModal';
 import { SettingsPanelProvider } from './context/SettingsPanelContext';
 import type { PromptNodeData, ImageInputNodeData, PromptEngineerNodeData, ImageGenNodeData, VideoGenNodeData } from './types';
 import { DEFAULT_IMAGE_SYSTEM_PROMPT, DEFAULT_VIDEO_SYSTEM_PROMPT } from './api/gemini';
+import { TEMPLATES } from './templates';
 
 let idCounter = 0;
 const getId = () => `node_${++idCounter}`;
@@ -107,6 +106,22 @@ function Flow() {
     (event: React.DragEvent) => {
       event.preventDefault();
 
+      // Template drop — build the whole subgraph centred on the drop point.
+      const templateId = event.dataTransfer.getData('application/loom-template');
+      if (templateId) {
+        const template = TEMPLATES.find((t) => t.id === templateId);
+        if (!template) return;
+        const center = screenToFlowPosition({ x: event.clientX, y: event.clientY });
+        const { nodes: tplNodes, edges: tplEdges } = template.build({
+          centerX: center.x,
+          centerY: center.y,
+          nextId: getId,
+        });
+        addNodes(tplNodes);
+        setEdges((eds) => [...eds, ...tplEdges]);
+        return;
+      }
+
       const type = event.dataTransfer.getData('application/reactflow');
       const offsetX = parseInt(event.dataTransfer.getData('application/loom-offset-x') || '0', 10);
       const offsetY = parseInt(event.dataTransfer.getData('application/loom-offset-y') || '0', 10);
@@ -128,7 +143,6 @@ function Flow() {
             position,
             data: {
               prompt: '',
-              referenceImages: [],
             } as PromptNodeData,
           };
           break;
@@ -222,7 +236,7 @@ function Flow() {
             id: getId(),
             type: 'prompt',
             position: { x: position.x - 200, y: position.y },
-            data: { prompt: '', referenceImages: [] } as PromptNodeData,
+            data: { prompt: '' } as PromptNodeData,
           };
           break;
         case 'imageInput':
@@ -294,6 +308,25 @@ function Flow() {
     [screenToFlowPosition, addNodes]
   );
 
+  const handleAddTemplate = useCallback(
+    (templateId: string) => {
+      const template = TEMPLATES.find((t) => t.id === templateId);
+      if (!template) return;
+      const center = screenToFlowPosition({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+      });
+      const { nodes: tplNodes, edges: tplEdges } = template.build({
+        centerX: center.x,
+        centerY: center.y,
+        nextId: getId,
+      });
+      addNodes(tplNodes);
+      setEdges((eds) => [...eds, ...tplEdges]);
+    },
+    [screenToFlowPosition, addNodes, setEdges]
+  );
+
   const handleClearCanvas = useCallback(() => {
     if (confirm('Clear all nodes and connections?')) {
       setNodes([]);
@@ -327,7 +360,7 @@ function Flow() {
         onClearCanvas={handleClearCanvas}
       />
 
-      <Sidebar onDragStart={handleDragStart} />
+      <Sidebar onDragStart={handleDragStart} onAddTemplate={handleAddTemplate} />
 
       <div ref={reactFlowWrapper} className="w-full h-full">
         <ReactFlow

@@ -32,8 +32,6 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
           image = (sourceNode.data as ImageGenNodeData).resultImages?.[0] || null;
         } else if (sourceNode.type === 'imageInput') {
           image = (sourceNode.data as ImageInputNodeData).images?.[0] || null;
-        } else if (sourceNode.type === 'prompt') {
-          image = (sourceNode.data as PromptNodeData).referenceImages?.[0] || null;
         }
       }
     }

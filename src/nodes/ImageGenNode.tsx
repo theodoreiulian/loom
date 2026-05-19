@@ -75,9 +75,7 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
     if (imageEdge) {
       const sourceNode = getNode(imageEdge.source);
       if (sourceNode) {
-        if (sourceNode.type === 'prompt') {
-          images = (sourceNode.data as PromptNodeData).referenceImages ?? [];
-        } else if (sourceNode.type === 'imageInput') {
+        if (sourceNode.type === 'imageInput') {
           images = (sourceNode.data as ImageInputNodeData).images ?? [];
         } else if (sourceNode.type === 'imageGen') {
           images = (sourceNode.data as ImageGenNodeData).resultImages ?? [];
