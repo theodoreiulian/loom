@@ -1,11 +1,10 @@
 import { memo, useCallback, useState } from 'react';
 import { Handle, Position, useReactFlow, useEdges } from '@xyflow/react';
 import { Wand2, ImageIcon, Film, AlertCircle, Loader2, Copy, Check, Settings2 } from 'lucide-react';
-import type { PromptEngineerNodeData, PromptNodeData } from '../types';
+import type { PromptEngineerNodeData, PromptNodeData, ImageInputNodeData, ImageGenNodeData } from '../types';
 import { enhancePromptWithGemini } from '../api/gemini';
 import { useSettingsPanel } from '../context/SettingsPanelContext';
-
-const HANDLE_STYLE = '!bg-white !border-[rgba(255,255,255,0.5)] !shadow-[0_0_10px_rgba(255,255,255,0.15)]';
+import { HANDLE_TEXT, HANDLE_IMAGE } from './handleStyles';
 
 function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNodeData }) {
   const { updateNodeData, getNode } = useReactFlow();
@@ -30,9 +29,14 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
 
     if (imageEdge) {
       const sourceNode = getNode(imageEdge.source);
-      if (sourceNode && sourceNode.type === 'prompt') {
-        const pd = sourceNode.data as PromptNodeData;
-        images = [...(pd.referenceImages || []), ...(pd.generatedImages || [])];
+      if (sourceNode) {
+        if (sourceNode.type === 'prompt') {
+          images = (sourceNode.data as PromptNodeData).referenceImages ?? [];
+        } else if (sourceNode.type === 'imageInput') {
+          images = (sourceNode.data as ImageInputNodeData).images ?? [];
+        } else if (sourceNode.type === 'imageGen') {
+          images = (sourceNode.data as ImageGenNodeData).resultImages ?? [];
+        }
       }
     }
 
@@ -172,9 +176,9 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
 
       </div>
       {/* Handles */}
-      <Handle type="target" position={Position.Left} id="engineer-text-in" className={HANDLE_STYLE} style={{ top: '35%' }} />
-      <Handle type="target" position={Position.Left} id="engineer-image-in" className={HANDLE_STYLE} style={{ top: '65%' }} />
-      <Handle type="source" position={Position.Right} id="engineer-out" className={HANDLE_STYLE} style={{ top: '50%' }} />
+      <Handle type="target" position={Position.Left} id="engineer-text-in" className={HANDLE_TEXT} style={{ top: '35%' }} />
+      <Handle type="target" position={Position.Left} id="engineer-image-in" className={HANDLE_IMAGE} style={{ top: '65%' }} />
+      <Handle type="source" position={Position.Right} id="engineer-out" className={HANDLE_TEXT} style={{ top: '50%' }} />
     </div>
   );
 }

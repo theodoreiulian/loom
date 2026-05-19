@@ -1,12 +1,11 @@
 import { memo, useCallback, useState } from 'react';
 import { Handle, Position, useReactFlow, useEdges } from '@xyflow/react';
 import { Film, Sparkles, AlertCircle, Download, Loader2, Settings2 } from 'lucide-react';
-import type { VideoGenNodeData, PromptNodeData, ImageGenNodeData, PromptEngineerNodeData } from '../types';
+import type { VideoGenNodeData, PromptNodeData, ImageGenNodeData, PromptEngineerNodeData, ImageInputNodeData } from '../types';
 import { generateVideoWithKling } from '../api/kling';
 import { generateVideoWithVeo } from '../api/veo';
 import { useSettingsPanel } from '../context/SettingsPanelContext';
-
-const HANDLE_STYLE = '!bg-white !border-[rgba(255,255,255,0.5)] !shadow-[0_0_10px_rgba(255,255,255,0.15)]';
+import { HANDLE_TEXT, HANDLE_IMAGE } from './handleStyles';
 
 function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
   const { updateNodeData, getNode } = useReactFlow();
@@ -28,7 +27,15 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
     }
     if (imageEdge) {
       const sourceNode = getNode(imageEdge.source);
-      if (sourceNode && sourceNode.type === 'imageGen') image = (sourceNode.data as ImageGenNodeData).resultImages?.[0] || null;
+      if (sourceNode) {
+        if (sourceNode.type === 'imageGen') {
+          image = (sourceNode.data as ImageGenNodeData).resultImages?.[0] || null;
+        } else if (sourceNode.type === 'imageInput') {
+          image = (sourceNode.data as ImageInputNodeData).images?.[0] || null;
+        } else if (sourceNode.type === 'prompt') {
+          image = (sourceNode.data as PromptNodeData).referenceImages?.[0] || null;
+        }
+      }
     }
     if (!prompt.trim()) return null;
     return { prompt, image };
@@ -41,9 +48,10 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
       return;
     }
     const provider = data.provider || 'kling';
-    const apiKey = localStorage.getItem(`Loom:api:${provider}`);
+    const apiKeyName = provider === 'veo' ? 'gemini' : provider;
+    const apiKey = localStorage.getItem(`Loom:api:${apiKeyName}`);
     if (!apiKey) {
-      updateNodeData(id, { ...data, status: 'error', errorMessage: `Set your ${provider === 'kling' ? 'Kling' : 'Veo'} API key in Settings` });
+      updateNodeData(id, { ...data, status: 'error', errorMessage: `Set your ${provider === 'kling' ? 'Kling' : 'Gemini'} API key in Settings` });
       return;
     }
     setIsProcessing(true);
@@ -145,8 +153,8 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
 
       </div>
       {/* Handles */}
-      <Handle type="target" position={Position.Left} id="video-text-in" className={HANDLE_STYLE} style={{ top: '35%' }} />
-      <Handle type="target" position={Position.Left} id="video-image-in" className={HANDLE_STYLE} style={{ top: '65%' }} />
+      <Handle type="target" position={Position.Left} id="video-text-in" className={HANDLE_TEXT} style={{ top: '35%' }} />
+      <Handle type="target" position={Position.Left} id="video-image-in" className={HANDLE_IMAGE} style={{ top: '65%' }} />
     </div>
   );
 }

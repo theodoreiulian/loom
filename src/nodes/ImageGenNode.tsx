@@ -2,11 +2,10 @@ import { memo, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Handle, Position, useReactFlow, useEdges } from '@xyflow/react';
 import { ImageIcon, Sparkles, AlertCircle, Download, Loader2, Settings2, X, Maximize2 } from 'lucide-react';
-import type { ImageGenNodeData, PromptNodeData, PromptEngineerNodeData } from '../types';
+import type { ImageGenNodeData, PromptNodeData, PromptEngineerNodeData, ImageInputNodeData } from '../types';
 import { generateImageWithGemini } from '../api/gemini';
 import { useSettingsPanel } from '../context/SettingsPanelContext';
-
-const HANDLE_STYLE = '!bg-white !border-[rgba(255,255,255,0.5)] !shadow-[0_0_10px_rgba(255,255,255,0.15)]';
+import { HANDLE_TEXT, HANDLE_IMAGE } from './handleStyles';
 
 function ImageLightbox({
   src,
@@ -75,9 +74,14 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
 
     if (imageEdge) {
       const sourceNode = getNode(imageEdge.source);
-      if (sourceNode && sourceNode.type === 'prompt') {
-        const pd = sourceNode.data as PromptNodeData;
-        images = [...(pd.referenceImages || []), ...(pd.generatedImages || [])];
+      if (sourceNode) {
+        if (sourceNode.type === 'prompt') {
+          images = (sourceNode.data as PromptNodeData).referenceImages ?? [];
+        } else if (sourceNode.type === 'imageInput') {
+          images = (sourceNode.data as ImageInputNodeData).images ?? [];
+        } else if (sourceNode.type === 'imageGen') {
+          images = (sourceNode.data as ImageGenNodeData).resultImages ?? [];
+        }
       }
     }
 
@@ -241,9 +245,9 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
 
       </div>
       {/* Handles */}
-      <Handle type="target" position={Position.Left} id="image-text-in" className={HANDLE_STYLE} style={{ top: '35%' }} />
-      <Handle type="target" position={Position.Left} id="image-image-in" className={HANDLE_STYLE} style={{ top: '65%' }} />
-      <Handle type="source" position={Position.Right} id="image-out" className={HANDLE_STYLE} style={{ top: '50%' }} />
+      <Handle type="target" position={Position.Left} id="image-text-in" className={HANDLE_TEXT} style={{ top: '35%' }} />
+      <Handle type="target" position={Position.Left} id="image-image-in" className={HANDLE_IMAGE} style={{ top: '65%' }} />
+      <Handle type="source" position={Position.Right} id="image-out" className={HANDLE_IMAGE} style={{ top: '50%' }} />
 
       {/* Lightbox */}
       {lightboxSrc && (

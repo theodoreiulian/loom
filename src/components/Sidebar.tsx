@@ -1,4 +1,4 @@
-import { Type, ImageIcon, Film, MousePointer, Wand2 } from 'lucide-react';
+import { Type, ImageIcon, Film, MousePointer, Wand2, Images } from 'lucide-react';
 
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: string) => void;
@@ -6,6 +6,7 @@ interface SidebarProps {
 
 const nodeTypes = [
   { type: 'prompt', label: 'Prompt', description: 'Text input', icon: Type },
+  { type: 'imageInput', label: 'Images', description: 'Image upload', icon: Images },
   { type: 'promptEngineer', label: 'Engineer', description: 'Prompt enhancement', icon: Wand2 },
   { type: 'imageGen', label: 'Image', description: 'Generate image', icon: ImageIcon },
   { type: 'videoGen', label: 'Video', description: 'Generate video', icon: Film },
@@ -13,6 +14,7 @@ const nodeTypes = [
 
 const NODE_WIDTHS: Record<string, number> = {
   prompt: 352,
+  imageInput: 352,
   imageGen: 352,
   videoGen: 352,
   promptEngineer: 416,
@@ -24,6 +26,7 @@ function createDragPreview(type: string, label: string) {
 
   const widths: Record<string, string> = {
     prompt: '352px',
+    imageInput: '352px',
     imageGen: '352px',
     videoGen: '352px',
     promptEngineer: '416px',
@@ -57,7 +60,14 @@ function createDragPreview(type: string, label: string) {
   title.style.fontWeight = '500';
 
   const badge = document.createElement('span');
-  badge.textContent = type === 'promptEngineer' ? 'Gemini' : type === 'imageGen' ? 'Gemini' : 'Kling';
+  const badges: Record<string, string> = {
+    prompt: 'Input',
+    imageInput: 'Input',
+    promptEngineer: 'Gemini',
+    imageGen: 'Gemini',
+    videoGen: 'Kling',
+  };
+  badge.textContent = badges[type] || 'Input';
   badge.style.marginLeft = 'auto';
   badge.style.fontSize = '10px';
   badge.style.color = 'rgba(255, 255, 255, 0.30)';

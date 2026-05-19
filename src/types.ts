@@ -1,7 +1,10 @@
 export interface PromptNodeData extends Record<string, unknown> {
   prompt: string;
   referenceImages: string[];
-  generatedImages: string[];
+}
+
+export interface ImageInputNodeData extends Record<string, unknown> {
+  images: string[];
 }
 
 export interface PromptEngineerNodeData extends Record<string, unknown> {
@@ -41,10 +44,9 @@ export interface VideoGenNodeData extends Record<string, unknown> {
   resolution: '720p' | '1080p' | '4K';
 }
 
-export type NodeData = PromptNodeData | PromptEngineerNodeData | ImageGenNodeData | VideoGenNodeData;
+export type NodeData = PromptNodeData | ImageInputNodeData | PromptEngineerNodeData | ImageGenNodeData | VideoGenNodeData;
 
 export interface ApiKeys {
   gemini?: string;
   kling?: string;
-  veo?: string;
 }

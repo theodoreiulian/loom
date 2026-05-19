@@ -6,12 +6,42 @@ import {
   useNodesState,
   useEdgesState,
   type Connection,
+  type Edge as FlowEdge,
   type Node,
   type Edge,
   ReactFlowProvider,
   useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+
+type HandleKind = 'text' | 'image';
+
+// Single source of truth: every handle in the app, and what it carries.
+// If a handle isn't listed here, no edge to/from it will be accepted.
+const HANDLE_KIND: Record<string, HandleKind> = {
+  // sources
+  'prompt-text-out': 'text',
+  'prompt-image-out': 'image',
+  'image-input-out': 'image',
+  'engineer-out': 'text',
+  'image-out': 'image',
+  // targets
+  'engineer-text-in': 'text',
+  'engineer-image-in': 'image',
+  'image-text-in': 'text',
+  'image-image-in': 'image',
+  'video-text-in': 'text',
+  'video-image-in': 'image',
+  'prompt-image-in': 'image',
+};
+
+const isValidConnection = (c: Connection | FlowEdge): boolean => {
+  if (!c.source || !c.target || !c.sourceHandle || !c.targetHandle) return false;
+  if (c.source === c.target) return false;
+  const src = HANDLE_KIND[c.sourceHandle];
+  const tgt = HANDLE_KIND[c.targetHandle];
+  return !!src && !!tgt && src === tgt;
+};
 
 import { nodeTypes } from './nodes';
 import { edgeTypes } from './edges';
@@ -22,7 +52,7 @@ import EdgeContextMenu from './components/EdgeContextMenu';
 import NodeSettingsPanel from './components/NodeSettingsPanel';
 import ApiKeyModal from './components/ApiKeyModal';
 import { SettingsPanelProvider } from './context/SettingsPanelContext';
-import type { PromptNodeData, PromptEngineerNodeData, ImageGenNodeData, VideoGenNodeData } from './types';
+import type { PromptNodeData, ImageInputNodeData, PromptEngineerNodeData, ImageGenNodeData, VideoGenNodeData } from './types';
 import { DEFAULT_IMAGE_SYSTEM_PROMPT, DEFAULT_VIDEO_SYSTEM_PROMPT } from './api/gemini';
 
 let idCounter = 0;
@@ -55,7 +85,15 @@ function Flow() {
 
   const onConnect = useCallback(
     (params: Connection) => {
-      setEdges((eds) => addEdge(params, eds));
+      if (!isValidConnection(params)) return;
+      setEdges((eds) => {
+        // Each target handle holds at most one edge — replacing keeps the
+        // visual state in lockstep with what consumer nodes actually read.
+        const cleaned = eds.filter(
+          (e) => !(e.target === params.target && e.targetHandle === params.targetHandle)
+        );
+        return addEdge(params, cleaned);
+      });
     },
     [setEdges]
   );
@@ -91,8 +129,17 @@ function Flow() {
             data: {
               prompt: '',
               referenceImages: [],
-              generatedImages: [],
             } as PromptNodeData,
+          };
+          break;
+        case 'imageInput':
+          newNode = {
+            id: getId(),
+            type: 'imageInput',
+            position,
+            data: {
+              images: [],
+            } as ImageInputNodeData,
           };
           break;
         case 'imageGen':
@@ -175,7 +222,15 @@ function Flow() {
             id: getId(),
             type: 'prompt',
             position: { x: position.x - 200, y: position.y },
-            data: { prompt: '', referenceImages: [], generatedImages: [] } as PromptNodeData,
+            data: { prompt: '', referenceImages: [] } as PromptNodeData,
+          };
+          break;
+        case 'imageInput':
+          newNode = {
+            id: getId(),
+            type: 'imageInput',
+            position: { x: position.x - 400, y: position.y },
+            data: { images: [] } as ImageInputNodeData,
           };
           break;
         case 'imageGen':
@@ -269,7 +324,6 @@ function Flow() {
     <>
       <Header
         onOpenSettings={() => setShowSettings(true)}
-        onAddNode={handleAddNode}
         onClearCanvas={handleClearCanvas}
       />
 
@@ -282,6 +336,7 @@ function Flow() {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          isValidConnection={isValidConnection}
           onEdgeContextMenu={onEdgeContextMenu}
           onPaneClick={() => setEdgeMenu(null)}
           onDragOver={onDragOver}

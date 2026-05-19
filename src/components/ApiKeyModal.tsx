@@ -10,24 +10,20 @@ interface ApiKeyModalProps {
 export default function ApiKeyModal({ isOpen, onClose }: ApiKeyModalProps) {
   const [geminiKey, setGeminiKey] = useState('');
   const [klingKey, setKlingKey] = useState('');
-  const [veoKey, setVeoKey] = useState('');
   const [showKeys, setShowKeys] = useState(false);
   const geminiRef = usePreventCanvasZoom<HTMLInputElement>();
   const klingRef = usePreventCanvasZoom<HTMLInputElement>();
-  const veoRef = usePreventCanvasZoom<HTMLInputElement>();
 
   useEffect(() => {
     if (isOpen) {
       setGeminiKey(localStorage.getItem('Loom:api:gemini') || '');
       setKlingKey(localStorage.getItem('Loom:api:kling') || '');
-      setVeoKey(localStorage.getItem('Loom:api:veo') || '');
     }
   }, [isOpen]);
 
   const handleSave = () => {
     if (geminiKey) localStorage.setItem('Loom:api:gemini', geminiKey); else localStorage.removeItem('Loom:api:gemini');
     if (klingKey) localStorage.setItem('Loom:api:kling', klingKey); else localStorage.removeItem('Loom:api:kling');
-    if (veoKey) localStorage.setItem('Loom:api:veo', veoKey); else localStorage.removeItem('Loom:api:veo');
     onClose();
   };
 
@@ -66,7 +62,7 @@ export default function ApiKeyModal({ isOpen, onClose }: ApiKeyModalProps) {
               placeholder="AIzaSy..."
               className="w-full px-3.5 py-2.5 glass-input text-[13px] text-white placeholder:text-[rgba(255,255,255,0.18)]"
             />
-            <p className="text-[11px] text-[rgba(255,255,255,0.20)]">Image generation. Get at Google AI Studio.</p>
+            <p className="text-[11px] text-[rgba(255,255,255,0.20)]">Used for image generation and Veo video. Get at Google AI Studio.</p>
           </div>
 
           <div className="space-y-1.5">
@@ -80,19 +76,6 @@ export default function ApiKeyModal({ isOpen, onClose }: ApiKeyModalProps) {
               className="w-full px-3.5 py-2.5 glass-input text-[13px] text-white placeholder:text-[rgba(255,255,255,0.18)]"
             />
             <p className="text-[11px] text-[rgba(255,255,255,0.20)]">Format: access_key|secret_key</p>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[12px] text-[rgba(255,255,255,0.40)] font-medium">Veo API Key</label>
-            <input
-              ref={veoRef}
-              type={showKeys ? 'text' : 'password'}
-              value={veoKey}
-              onChange={(e) => setVeoKey(e.target.value)}
-              placeholder="AIzaSy..."
-              className="w-full px-3.5 py-2.5 glass-input text-[13px] text-white placeholder:text-[rgba(255,255,255,0.18)]"
-            />
-            <p className="text-[11px] text-[rgba(255,255,255,0.20)]">Alternative video provider.</p>
           </div>
 
           <button
