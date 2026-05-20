@@ -50,6 +50,7 @@ import EdgeContextMenu from './components/EdgeContextMenu';
 import NodeSettingsPanel from './components/NodeSettingsPanel';
 import ApiKeyModal from './components/ApiKeyModal';
 import { SettingsPanelProvider } from './context/SettingsPanelContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import type { PromptNodeData, ImageInputNodeData, PromptEngineerNodeData, ImageGenNodeData, VideoGenNodeData } from './types';
 import { DEFAULT_IMAGE_SYSTEM_PROMPT, DEFAULT_VIDEO_SYSTEM_PROMPT } from './api/gemini';
 import { TEMPLATES } from './templates';
@@ -59,11 +60,20 @@ const getId = () => `node_${++idCounter}`;
 
 function Flow() {
   const { screenToFlowPosition, addNodes } = useReactFlow();
+  const { theme } = useTheme();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+
+  // React Flow renders the Background dots via an SVG `fill` attribute, which
+  // doesn't resolve CSS variables — so we pass a literal color per theme.
+  const dotColor = theme === 'light' ? 'rgba(0, 0, 0, 0.18)' : 'rgba(255, 255, 255, 0.14)';
+
+  // While the empty-state CTA is showing there are no nodes to interact with —
+  // freeze pan/zoom so the dot grid stays anchored behind the welcome card.
+  const isEmpty = nodes.length === 0;
 
   // Global delete key handler — works regardless of focus
   useEffect(() => {
@@ -86,11 +96,12 @@ function Flow() {
     (params: Connection) => {
       if (!isValidConnection(params)) return;
       setEdges((eds) => {
-        // Each target handle holds at most one edge — replacing keeps the
-        // visual state in lockstep with what consumer nodes actually read.
-        const cleaned = eds.filter(
-          (e) => !(e.target === params.target && e.targetHandle === params.targetHandle)
-        );
+        // Text handles accept only one source — replace any existing edge.
+        // Image handles accept multiple sources — just append.
+        const kind = params.targetHandle ? HANDLE_KIND[params.targetHandle] : null;
+        const cleaned = kind === 'text'
+          ? eds.filter((e) => !(e.target === params.target && e.targetHandle === params.targetHandle))
+          : eds;
         return addEdge(params, cleaned);
       });
     },
@@ -165,11 +176,18 @@ function Flow() {
               status: 'idle',
               resultImages: [],
               errorMessage: null,
+              provider: 'gemini',
               model: 'gemini-3.1-flash-image-preview',
               aspectRatio: '1:1',
               negativePrompt: '',
               resolution: '1K',
               numberOfImages: 1,
+              quality: 'auto',
+              outputFormat: 'png',
+              outputCompression: 100,
+              background: 'auto',
+              inputFidelity: 'low',
+              moderation: 'auto',
             } as ImageGenNodeData,
           };
           break;
@@ -256,11 +274,18 @@ function Flow() {
               status: 'idle',
               resultImages: [],
               errorMessage: null,
+              provider: 'gemini',
               model: 'gemini-3.1-flash-image-preview',
               aspectRatio: '1:1',
               negativePrompt: '',
               resolution: '1K',
               numberOfImages: 1,
+              quality: 'auto',
+              outputFormat: 'png',
+              outputCompression: 100,
+              background: 'auto',
+              inputFidelity: 'low',
+              moderation: 'auto',
             } as ImageGenNodeData,
           };
           break;
@@ -378,10 +403,14 @@ function Flow() {
           defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
           minZoom={0.2}
           maxZoom={2}
+          panOnDrag={!isEmpty}
+          zoomOnScroll={!isEmpty}
+          zoomOnPinch={!isEmpty}
+          zoomOnDoubleClick={!isEmpty}
           deleteKeyCode="Delete"
           selectionKeyCode="Shift"
           multiSelectionKeyCode="Control"
-          connectionLineStyle={{ stroke: 'rgba(255, 255, 255, 0.7)', strokeWidth: 2.5, strokeLinecap: 'round' }}
+          connectionLineStyle={{ stroke: 'var(--color-cable)', strokeWidth: 2.5, strokeLinecap: 'round' }}
           defaultEdgeOptions={{
             type: 'cable',
             animated: false,
@@ -389,7 +418,7 @@ function Flow() {
           }}
           edgeTypes={edgeTypes as any}
         >
-          <Background gap={28} size={1} color="rgba(255,255,255,0.035)" />
+          <Background gap={44} size={2.2} color={dotColor} />
         </ReactFlow>
       </div>
 
@@ -414,11 +443,13 @@ function Flow() {
 export default function App() {
   return (
     <div className="w-full h-full">
-      <ReactFlowProvider>
-        <SettingsPanelProvider>
-          <Flow />
-        </SettingsPanelProvider>
-      </ReactFlowProvider>
+      <ThemeProvider>
+        <ReactFlowProvider>
+          <SettingsPanelProvider>
+            <Flow />
+          </SettingsPanelProvider>
+        </ReactFlowProvider>
+      </ThemeProvider>
     </div>
   );
 }

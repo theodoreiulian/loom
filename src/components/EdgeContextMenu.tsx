@@ -27,7 +27,7 @@ export default function EdgeContextMenu({ x, y, onDelete, onClose }: EdgeContext
     >
       <button
         onClick={() => { onDelete(); onClose(); }}
-        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] text-[rgba(255,255,255,0.70)] hover:bg-[rgba(255,255,255,0.05)] hover:text-white transition-colors cursor-pointer"
+        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] text-secondary hover:bg-surface-hover hover:text-primary transition-colors cursor-pointer"
       >
         <Unlink className="w-3.5 h-3.5" /> Disconnect
       </button>

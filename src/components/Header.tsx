@@ -1,5 +1,6 @@
 import { Trash2, Settings } from 'lucide-react';
 import logo from '../assets/sublogo.png';
+import { useTheme } from '../context/ThemeContext';
 
 interface HeaderProps {
   onOpenSettings: () => void;
@@ -7,12 +8,20 @@ interface HeaderProps {
 }
 
 export default function Header({ onOpenSettings, onClearCanvas }: HeaderProps) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   return (
     <header className="absolute top-3 left-3 right-3 z-50 flex items-center">
       <div className="glass-strong w-full flex items-center px-2 py-1.5 rounded-2xl">
         {/* Left: Logo */}
         <div className="flex items-center pl-4">
-          <img src={logo} alt="Loom" className="h-9 w-auto" />
+          <img
+            src={logo}
+            alt="Loom"
+            className="h-9 w-auto transition-[filter] duration-300"
+            style={{ filter: isLight ? 'invert(1)' : 'none' }}
+          />
         </div>
 
         <div className="flex-1" />

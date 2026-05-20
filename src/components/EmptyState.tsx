@@ -17,12 +17,12 @@ export default function EmptyState({ onAddNode }: EmptyStateProps) {
     <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
       {/* Sketch arrow pointing toward the Settings button in the header */}
       <div
-        className="absolute top-12 right-2 w-[280px] h-[140px] animate-fade-up pointer-events-none select-none"
+        className="absolute top-12 right-2 w-[280px] h-[140px] animate-fade-up pointer-events-none select-none text-secondary"
         style={{ animationDelay: '300ms', animationFillMode: 'both' }}
         aria-hidden="true"
       >
         <span
-          className="absolute left-3 bottom-1 text-[19px] leading-tight text-[rgba(255,255,255,0.55)]"
+          className="absolute left-3 bottom-1 text-[19px] leading-tight"
           style={{
             fontFamily: "'Caveat', 'Bradley Hand', cursive",
             transform: 'rotate(-4deg)',
@@ -39,7 +39,7 @@ export default function EmptyState({ onAddNode }: EmptyStateProps) {
         >
           <path
             d="M 115 105 C 160 105, 188 55, 210 25"
-            stroke="rgba(255,255,255,0.50)"
+            stroke="currentColor"
             strokeWidth="1.8"
             strokeLinecap="round"
             fill="none"
@@ -47,7 +47,7 @@ export default function EmptyState({ onAddNode }: EmptyStateProps) {
           {/* Arrowhead — explicit feathers tuned to the tangent at the tip */}
           <path
             d="M 210 25 L 200 30 M 210 25 L 208 36"
-            stroke="rgba(255,255,255,0.50)"
+            stroke="currentColor"
             strokeWidth="1.8"
             strokeLinecap="round"
             fill="none"
@@ -59,12 +59,12 @@ export default function EmptyState({ onAddNode }: EmptyStateProps) {
         {/* Title area */}
         <div className="space-y-3 animate-fade-up">
           <div className="w-14 h-14 mx-auto rounded-2xl glass flex items-center justify-center">
-            <MousePointer className="w-6 h-6 text-[rgba(255,255,255,0.30)]" />
+            <MousePointer className="w-6 h-6 text-muted" />
           </div>
-          <h2 className="text-[21px] text-white font-medium tracking-tight">
+          <h2 className="text-[21px] text-primary font-medium tracking-tight">
             Start Building Your Workflow
           </h2>
-          <p className="text-[13px] text-[rgba(255,255,255,0.30)]">
+          <p className="text-[13px] text-muted">
             Drag nodes from the sidebar or click below to begin.
           </p>
         </div>
@@ -79,9 +79,9 @@ export default function EmptyState({ onAddNode }: EmptyStateProps) {
               style={{ animationFillMode: 'forwards' }}
             >
               <div className="liquid-glass-icon w-10 h-10 flex items-center justify-center">
-                <n.icon className="w-5 h-5 text-[rgba(255,255,255,0.40)]" />
+                <n.icon className="w-5 h-5 text-secondary" />
               </div>
-              <span className="text-[12px] text-[rgba(255,255,255,0.45)] font-medium">{n.label}</span>
+              <span className="text-[12px] text-secondary font-medium">{n.label}</span>
             </button>
           ))}
         </div>

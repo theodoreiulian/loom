@@ -4,6 +4,7 @@ import { Handle, Position, useReactFlow, useEdges } from '@xyflow/react';
 import { ImageIcon, Sparkles, AlertCircle, Download, Loader2, Settings2, X, Maximize2 } from 'lucide-react';
 import type { ImageGenNodeData, PromptNodeData, PromptEngineerNodeData, ImageInputNodeData } from '../types';
 import { generateImageWithGemini } from '../api/gemini';
+import { generateImageWithOpenAI } from '../api/openai';
 import { useSettingsPanel } from '../context/SettingsPanelContext';
 import { HANDLE_TEXT, HANDLE_IMAGE } from './handleStyles';
 
@@ -19,19 +20,19 @@ function ImageLightbox({
   return createPortal(
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center"
-      style={{ background: 'rgba(0, 0, 0, 0.92)', backdropFilter: 'blur(20px)' }}
+      style={{ background: 'var(--color-overlay-lightbox)', backdropFilter: 'blur(20px)' }}
       onClick={onClose}
     >
       <div className="absolute top-5 right-5 flex items-center gap-2.5">
         <button
           onClick={(e) => { e.stopPropagation(); onDownload(); }}
-          className="w-10 h-10 rounded-xl glass-strong flex items-center justify-center text-[rgba(255,255,255,0.60)] hover:text-white hover:border-[rgba(255,255,255,0.15)] transition-all cursor-pointer"
+          className="w-10 h-10 rounded-xl glass-strong flex items-center justify-center text-secondary hover:text-primary hover:border-line-strong transition-all cursor-pointer"
         >
           <Download className="w-4 h-4" />
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); onClose(); }}
-          className="w-10 h-10 rounded-xl glass-strong flex items-center justify-center text-[rgba(255,255,255,0.60)] hover:text-white hover:border-[rgba(255,255,255,0.15)] transition-all cursor-pointer"
+          className="w-10 h-10 rounded-xl glass-strong flex items-center justify-center text-secondary hover:text-primary hover:border-line-strong transition-all cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -56,10 +57,10 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
 
   const getConnectedData = useCallback((): { prompt: string; images: string[] } | null => {
     const textEdge = edges.find((e) => e.target === id && e.targetHandle === 'image-text-in');
-    const imageEdge = edges.find((e) => e.target === id && e.targetHandle === 'image-image-in');
+    const imageEdges = edges.filter((e) => e.target === id && e.targetHandle === 'image-image-in');
 
     let prompt = '';
-    let images: string[] = [];
+    const images: string[] = [];
 
     if (textEdge) {
       const sourceNode = getNode(textEdge.source);
@@ -72,14 +73,13 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
       }
     }
 
-    if (imageEdge) {
-      const sourceNode = getNode(imageEdge.source);
-      if (sourceNode) {
-        if (sourceNode.type === 'imageInput') {
-          images = (sourceNode.data as ImageInputNodeData).images ?? [];
-        } else if (sourceNode.type === 'imageGen') {
-          images = (sourceNode.data as ImageGenNodeData).resultImages ?? [];
-        }
+    for (const edge of imageEdges) {
+      const sourceNode = getNode(edge.source);
+      if (!sourceNode) continue;
+      if (sourceNode.type === 'imageInput') {
+        images.push(...((sourceNode.data as ImageInputNodeData).images ?? []));
+      } else if (sourceNode.type === 'imageGen') {
+        images.push(...((sourceNode.data as ImageGenNodeData).resultImages ?? []));
       }
     }
 
@@ -93,9 +93,11 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
       updateNodeData(id, { ...data, status: 'error', errorMessage: 'Connect a Prompt or Prompt Engineer node first' });
       return;
     }
-    const apiKey = localStorage.getItem('Loom:api:gemini');
+    const provider = data.provider || 'gemini';
+    const apiKey = localStorage.getItem(provider === 'openai' ? 'Loom:api:openai' : 'Loom:api:gemini');
     if (!apiKey) {
-      updateNodeData(id, { ...data, status: 'error', errorMessage: 'Set your Gemini API key in Settings' });
+      const providerName = provider === 'openai' ? 'OpenAI' : 'Gemini';
+      updateNodeData(id, { ...data, status: 'error', errorMessage: `Set your ${providerName} API key in Settings` });
       return;
     }
 
@@ -104,18 +106,38 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
     updateNodeData(id, { ...data, status: 'processing', errorMessage: null, resultImages: [] });
 
     try {
-      const promises: Promise<string>[] = [];
-      for (let i = 0; i < count; i++) {
-        promises.push(
-          generateImageWithGemini(connected.prompt, connected.images, apiKey, {
-            model: data.model,
-            aspectRatio: data.aspectRatio,
-            negativePrompt: data.negativePrompt,
-            resolution: data.resolution,
-          })
-        );
+      let results: string[] = [];
+
+      if (provider === 'openai') {
+        const images = await generateImageWithOpenAI(connected.prompt, connected.images, apiKey, {
+          model: data.model,
+          aspectRatio: data.aspectRatio,
+          negativePrompt: data.negativePrompt,
+          resolution: data.resolution,
+          numberOfImages: count,
+          quality: data.quality,
+          outputFormat: data.outputFormat,
+          outputCompression: data.outputCompression,
+          background: data.background,
+          inputFidelity: data.inputFidelity,
+          moderation: data.moderation,
+        });
+        results = images;
+      } else {
+        const promises: Promise<string>[] = [];
+        for (let i = 0; i < count; i++) {
+          promises.push(
+            generateImageWithGemini(connected.prompt, connected.images, apiKey, {
+              model: data.model,
+              aspectRatio: data.aspectRatio,
+              negativePrompt: data.negativePrompt,
+              resolution: data.resolution,
+            })
+          );
+        }
+        results = await Promise.all(promises);
       }
-      const results = await Promise.all(promises);
+
       updateNodeData(id, { ...data, status: 'done', resultImages: results, errorMessage: null });
     } catch (err: any) {
       updateNodeData(id, { ...data, status: 'error', errorMessage: err.message || 'Image generation failed' });
@@ -147,42 +169,42 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
   const doneCount = data.resultImages?.length || 0;
 
   const statusDotColor =
-    data.status === 'done' ? 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.25)]' :
-    data.status === 'error' ? 'bg-[rgba(255,255,255,0.40)] shadow-[0_0_8px_rgba(255,255,255,0.10)]' :
-    data.status === 'processing' ? 'bg-[rgba(255,255,255,0.75)] animate-pulse-glow' :
-    'bg-[rgba(255,255,255,0.18)]';
+    data.status === 'done' ? 'bg-primary shadow-[0_0_8px_var(--color-line-strong)]' :
+    data.status === 'error' ? 'bg-secondary' :
+    data.status === 'processing' ? 'bg-primary animate-pulse-glow' :
+    'bg-faint';
 
   return (
     <div className="relative">
       <div className="node-card w-[22rem] rounded-2xl glass overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.03)]">
+      <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-line-subtle bg-surface">
         <div className="liquid-glass-icon w-6 h-6 flex items-center justify-center">
-          <ImageIcon className="w-3.5 h-3.5 text-[rgba(255,255,255,0.45)]" />
+          <ImageIcon className="w-3.5 h-3.5 text-secondary" />
         </div>
-        <span className="text-[13px] text-white font-medium">Image Gen</span>
-        <button onClick={() => openSettings(id)} className="ml-auto p-1 cursor-pointer text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.80)] transition-colors">
+        <span className="text-[13px] text-primary font-medium">Image Gen</span>
+        <button onClick={() => openSettings(id)} className="ml-auto p-1 cursor-pointer text-muted hover:text-primary transition-colors">
           <Settings2 className="w-3.5 h-3.5" />
         </button>
-        <span className="text-[11px] text-[rgba(255,255,255,0.25)] uppercase font-mono tracking-wider">Gemini</span>
+        <span className="text-[11px] text-muted uppercase font-mono tracking-wider">{data.provider === 'openai' ? 'OpenAI' : 'Gemini'}</span>
       </div>
 
       {/* Body */}
       <div className="p-4 space-y-3">
         {/* Status bar */}
-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[rgba(0,0,0,0.45)] border border-[rgba(255,255,255,0.05)]">
+        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-surface-recessed border border-line-subtle">
           <div className={`w-2 h-2 rounded-full ${statusDotColor}`} />
-          <span className="text-[12px] text-[rgba(255,255,255,0.40)] capitalize font-medium">
+          <span className="text-[12px] text-secondary capitalize font-medium">
             {data.status === 'done' && doneCount > 1 ? `${statusLabel} (${doneCount})` : statusLabel}
           </span>
-          {data.status === 'processing' && <Loader2 className="w-3 h-3 text-[rgba(255,255,255,0.50)] animate-spin ml-auto" />}
+          {data.status === 'processing' && <Loader2 className="w-3 h-3 text-secondary animate-spin ml-auto" />}
         </div>
 
         {/* Results */}
         {data.resultImages?.length > 0 && (
           <div className="space-y-2.5">
             {data.resultImages.map((img, idx) => (
-              <div key={idx} className="relative group rounded-xl overflow-hidden border border-[rgba(255,255,255,0.05)] hover:border-[rgba(255,255,255,0.10)] transition-colors cursor-pointer">
+              <div key={idx} className="relative group rounded-xl overflow-hidden border border-line-subtle hover:border-line transition-colors cursor-pointer">
                 <img
                   src={img}
                   alt={`Generated ${idx + 1}`}
@@ -190,20 +212,20 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
                   onClick={() => setLightboxSrc(img)}
                 />
                 {data.resultImages.length > 1 && (
-                  <span className="absolute top-2.5 left-2.5 px-1.5 py-0.5 rounded-lg glass-strong text-[11px] text-[rgba(255,255,255,0.70)] pointer-events-none font-mono">
+                  <span className="absolute top-2.5 left-2.5 px-1.5 py-0.5 rounded-lg glass-strong text-[11px] text-secondary pointer-events-none font-mono">
                     {idx + 1}
                   </span>
                 )}
                 <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => { e.stopPropagation(); setLightboxSrc(img); }}
-                    className="w-8 h-8 rounded-lg glass-strong flex items-center justify-center text-white hover:border-[rgba(255,255,255,0.15)] transition-all cursor-pointer"
+                    className="w-8 h-8 rounded-lg glass-strong flex items-center justify-center text-primary hover:border-line-strong transition-all cursor-pointer"
                   >
                     <Maximize2 className="w-3 h-3" />
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); downloadOne(img, idx); }}
-                    className="w-8 h-8 rounded-lg glass-strong flex items-center justify-center text-white hover:border-[rgba(255,255,255,0.15)] transition-all cursor-pointer"
+                    className="w-8 h-8 rounded-lg glass-strong flex items-center justify-center text-primary hover:border-line-strong transition-all cursor-pointer"
                   >
                     <Download className="w-3 h-3" />
                   </button>
@@ -213,7 +235,7 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
             {data.resultImages.length > 1 && (
               <button
                 onClick={downloadAll}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-full glass-button text-[12px] text-[rgba(255,255,255,0.45)] hover:text-[rgba(255,255,255,0.80)]"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-full glass-button text-[12px]"
               >
                 <Download className="w-3 h-3" /> Download all
               </button>
@@ -223,9 +245,9 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
 
         {/* Error */}
         {data.errorMessage && (
-          <div className="nodrag flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <AlertCircle className="w-3.5 h-3.5 text-[rgba(255,255,255,0.40)] shrink-0 mt-0.5" />
-            <span className="select-text text-[12px] text-[rgba(255,255,255,0.35)]">{data.errorMessage}</span>
+          <div className="nodrag flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-surface border border-line-subtle">
+            <AlertCircle className="w-3.5 h-3.5 text-secondary shrink-0 mt-0.5" />
+            <span className="select-text text-[12px] text-secondary">{data.errorMessage}</span>
           </div>
         )}
 

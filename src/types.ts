@@ -17,15 +17,24 @@ export interface PromptEngineerNodeData extends Record<string, unknown> {
   referenceImages: string[];
 }
 
+export type ImageGenProvider = 'gemini' | 'openai';
+
 export interface ImageGenNodeData extends Record<string, unknown> {
   status: 'idle' | 'processing' | 'done' | 'error';
   resultImages: string[];
   errorMessage: string | null;
-  model: 'gemini-3.1-flash-image-preview' | 'gemini-3-pro-image-preview';
-  aspectRatio: '1:1' | '4:3' | '16:9' | '3:4' | '9:16';
+  provider: ImageGenProvider;
+  model: 'gemini-3.1-flash-image-preview' | 'gemini-3-pro-image-preview' | 'gpt-image-2';
+  aspectRatio: '1:1' | '4:3' | '16:9' | '3:4' | '9:16' | '21:9' | '9:21' | '2:1' | '1:2' | '3:2' | '2:3';
   negativePrompt: string;
   resolution: '1K' | '2K' | '4K';
-  numberOfImages: 1 | 2 | 3 | 4;
+  numberOfImages: number;
+  quality: 'auto' | 'low' | 'medium' | 'high';
+  outputFormat: 'png' | 'jpeg' | 'webp';
+  outputCompression: number;
+  background: 'transparent' | 'opaque' | 'auto';
+  inputFidelity: 'high' | 'low';
+  moderation: 'low' | 'auto';
 }
 
 export type VideoProvider = 'kling' | 'veo';
@@ -47,5 +56,6 @@ export type NodeData = PromptNodeData | ImageInputNodeData | PromptEngineerNodeD
 
 export interface ApiKeys {
   gemini?: string;
+  openai?: string;
   kling?: string;
 }

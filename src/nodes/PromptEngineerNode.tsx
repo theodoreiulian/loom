@@ -15,10 +15,10 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
 
   const getConnectedData = useCallback((): { prompt: string; images: string[] } | null => {
     const textEdge = edges.find((e) => e.target === id && e.targetHandle === 'engineer-text-in');
-    const imageEdge = edges.find((e) => e.target === id && e.targetHandle === 'engineer-image-in');
+    const imageEdges = edges.filter((e) => e.target === id && e.targetHandle === 'engineer-image-in');
 
     let prompt = '';
-    let images: string[] = [];
+    const images: string[] = [];
 
     if (textEdge) {
       const sourceNode = getNode(textEdge.source);
@@ -27,14 +27,13 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
       }
     }
 
-    if (imageEdge) {
-      const sourceNode = getNode(imageEdge.source);
-      if (sourceNode) {
-        if (sourceNode.type === 'imageInput') {
-          images = (sourceNode.data as ImageInputNodeData).images ?? [];
-        } else if (sourceNode.type === 'imageGen') {
-          images = (sourceNode.data as ImageGenNodeData).resultImages ?? [];
-        }
+    for (const edge of imageEdges) {
+      const sourceNode = getNode(edge.source);
+      if (!sourceNode) continue;
+      if (sourceNode.type === 'imageInput') {
+        images.push(...((sourceNode.data as ImageInputNodeData).images ?? []));
+      } else if (sourceNode.type === 'imageGen') {
+        images.push(...((sourceNode.data as ImageGenNodeData).resultImages ?? []));
       }
     }
 
@@ -76,31 +75,31 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
   const statusLabel = data.status === 'idle' ? 'Ready' : data.status;
 
   const statusDotColor =
-    data.status === 'done' ? 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.25)]' :
-    data.status === 'error' ? 'bg-[rgba(255,255,255,0.40)] shadow-[0_0_8px_rgba(255,255,255,0.10)]' :
-    data.status === 'processing' ? 'bg-[rgba(255,255,255,0.75)] animate-pulse-glow' :
-    'bg-[rgba(255,255,255,0.18)]';
+    data.status === 'done' ? 'bg-primary shadow-[0_0_8px_var(--color-line-strong)]' :
+    data.status === 'error' ? 'bg-secondary' :
+    data.status === 'processing' ? 'bg-primary animate-pulse-glow' :
+    'bg-faint';
 
   return (
     <div className="relative">
       <div className="node-card w-[26rem] rounded-2xl glass overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.03)]">
+      <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-line-subtle bg-surface">
         <div className="liquid-glass-icon w-6 h-6 flex items-center justify-center">
-          <Wand2 className="w-3.5 h-3.5 text-[rgba(255,255,255,0.45)]" />
+          <Wand2 className="w-3.5 h-3.5 text-secondary" />
         </div>
-        <span className="text-[13px] text-white font-medium">Prompt Engineer</span>
-        <button onClick={() => openSettings(id)} className="ml-auto p-1 cursor-pointer text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.80)] transition-colors">
+        <span className="text-[13px] text-primary font-medium">Prompt Engineer</span>
+        <button onClick={() => openSettings(id)} className="ml-auto p-1 cursor-pointer text-muted hover:text-primary transition-colors">
           <Settings2 className="w-3.5 h-3.5" />
         </button>
-        <span className="text-[11px] text-[rgba(255,255,255,0.25)] uppercase font-mono tracking-wider">Gemini</span>
+        <span className="text-[11px] text-muted uppercase font-mono tracking-wider">Gemini</span>
       </div>
 
       {/* Body */}
       <div className="p-4 space-y-3">
         {/* Target mode toggle */}
         <div>
-          <label className="text-[12px] text-[rgba(255,255,255,0.35)] mb-1.5 block font-medium">Target</label>
+          <label className="text-[12px] text-secondary mb-1.5 block font-medium">Target</label>
           <div className="flex gap-1.5">
             {(['image', 'video'] as const).map((m) => (
               <button
@@ -120,18 +119,18 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
         </div>
 
         {/* Status bar */}
-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[rgba(0,0,0,0.45)] border border-[rgba(255,255,255,0.05)]">
+        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-surface-recessed border border-line-subtle">
           <div className={`w-2 h-2 rounded-full ${statusDotColor}`} />
-          <span className="text-[12px] text-[rgba(255,255,255,0.40)] capitalize font-medium">{statusLabel}</span>
-          {data.status === 'processing' && <Loader2 className="w-3 h-3 text-[rgba(255,255,255,0.50)] animate-spin ml-auto" />}
+          <span className="text-[12px] text-secondary capitalize font-medium">{statusLabel}</span>
+          {data.status === 'processing' && <Loader2 className="w-3 h-3 text-secondary animate-spin ml-auto" />}
         </div>
 
         {/* Input preview */}
         {data.rawPrompt && (
           <div>
-            <span className="text-[11px] text-[rgba(255,255,255,0.25)] uppercase font-mono tracking-wider">Input</span>
-            <div className="px-3 py-2 rounded-xl bg-[rgba(0,0,0,0.40)] border border-[rgba(255,255,255,0.05)] mt-1">
-              <p className="text-[12px] text-[rgba(255,255,255,0.40)] line-clamp-3">{data.rawPrompt}</p>
+            <span className="text-[11px] text-muted uppercase font-mono tracking-wider">Input</span>
+            <div className="px-3 py-2 rounded-xl bg-surface-recessed border border-line-subtle mt-1">
+              <p className="text-[12px] text-secondary line-clamp-3">{data.rawPrompt}</p>
             </div>
           </div>
         )}
@@ -140,23 +139,23 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
         {data.enhancedPrompt && (
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-[rgba(255,255,255,0.25)] uppercase font-mono tracking-wider">Enhanced</span>
-              <button onClick={handleCopy} className="flex items-center gap-1 text-[11px] text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.60)] transition-colors cursor-pointer">
-                {copied ? <Check className="w-3 h-3 text-[rgba(255,255,255,0.60)]" /> : <Copy className="w-3 h-3" />}
+              <span className="text-[11px] text-muted uppercase font-mono tracking-wider">Enhanced</span>
+              <button onClick={handleCopy} className="flex items-center gap-1 text-[11px] text-muted hover:text-secondary transition-colors cursor-pointer">
+                {copied ? <Check className="w-3 h-3 text-secondary" /> : <Copy className="w-3 h-3" />}
                 {copied ? 'Copied' : 'Copy'}
               </button>
             </div>
-            <div className="px-3 py-2.5 rounded-xl bg-[rgba(0,0,0,0.40)] border border-[rgba(255,255,255,0.05)] mt-1">
-              <p className="text-[12px] text-[rgba(255,255,255,0.70)] leading-relaxed">{data.enhancedPrompt}</p>
+            <div className="px-3 py-2.5 rounded-xl bg-surface-recessed border border-line-subtle mt-1">
+              <p className="text-[12px] text-secondary leading-relaxed">{data.enhancedPrompt}</p>
             </div>
           </div>
         )}
 
         {/* Error */}
         {data.errorMessage && (
-          <div className="nodrag flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <AlertCircle className="w-3.5 h-3.5 text-[rgba(255,255,255,0.40)] shrink-0 mt-0.5" />
-            <span className="select-text text-[12px] text-[rgba(255,255,255,0.35)]">{data.errorMessage}</span>
+          <div className="nodrag flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-surface border border-line-subtle">
+            <AlertCircle className="w-3.5 h-3.5 text-secondary shrink-0 mt-0.5" />
+            <span className="select-text text-[12px] text-secondary">{data.errorMessage}</span>
           </div>
         )}
 
