@@ -439,6 +439,28 @@ input, textarea, select {
   animation: fade-up 0.4s var(--ease-out-expo) forwards;
 }
 
+@keyframes popup-in {
+  from { transform: scale(0.94) translateY(8px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.animate-popup-in {
+  animation: popup-in 0.22s var(--ease-out-expo) forwards;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+@keyframes popup-out {
+  from { transform: scale(1) translateY(0); opacity: 1; }
+  to { transform: scale(0.96) translateY(6px); opacity: 0; }
+}
+
+.animate-popup-out {
+  animation: popup-out 0.16s var(--ease-out-quart) forwards;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 6px var(--color-line); }
   50% { box-shadow: 0 0 14px var(--color-line-focus); }
@@ -468,6 +490,8 @@ input, textarea, select {
 @media (prefers-reduced-motion: reduce) {
   .animate-slide-in,
   .animate-fade-up,
+  .animate-popup-in,
+  .animate-popup-out,
   .animate-pulse-glow,
   .animate-cable-flow {
     animation: none;

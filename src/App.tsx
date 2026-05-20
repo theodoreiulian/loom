@@ -49,6 +49,7 @@ import EmptyState from './components/EmptyState';
 import EdgeContextMenu from './components/EdgeContextMenu';
 import NodeSettingsPanel from './components/NodeSettingsPanel';
 import ApiKeyModal from './components/ApiKeyModal';
+import ConfirmDialog from './components/ConfirmDialog';
 import { SettingsPanelProvider } from './context/SettingsPanelContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import type { PromptNodeData, ImageInputNodeData, PromptEngineerNodeData, ImageGenNodeData, VideoGenNodeData } from './types';
@@ -64,6 +65,7 @@ function Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -353,10 +355,12 @@ function Flow() {
   );
 
   const handleClearCanvas = useCallback(() => {
-    if (confirm('Clear all nodes and connections?')) {
-      setNodes([]);
-      setEdges([]);
-    }
+    setShowClearConfirm(true);
+  }, []);
+
+  const confirmClearCanvas = useCallback(() => {
+    setNodes([]);
+    setEdges([]);
   }, [setNodes, setEdges]);
 
   const onEdgeContextMenu = useCallback(
@@ -436,6 +440,15 @@ function Flow() {
       <NodeSettingsPanel />
 
       <ApiKeyModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        title="Clear canvas"
+        message="This will remove all nodes and connections. You can't undo this."
+        confirmLabel="Clear"
+        onConfirm={confirmClearCanvas}
+        onClose={() => setShowClearConfirm(false)}
+      />
     </>
   );
 }

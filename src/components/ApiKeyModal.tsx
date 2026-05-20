@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { usePreventCanvasZoom } from '../hooks/usePreventCanvasZoom';
-import { X, Key, Eye, EyeOff, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { useExitAnimation } from '../hooks/useExitAnimation';
+import { X, Key, Eye, EyeOff } from 'lucide-react';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -13,7 +13,6 @@ export default function ApiKeyModal({ isOpen, onClose }: ApiKeyModalProps) {
   const [openaiKey, setOpenaiKey] = useState('');
   const [klingKey, setKlingKey] = useState('');
   const [showKeys, setShowKeys] = useState(false);
-  const { theme, setTheme } = useTheme();
   const geminiRef = usePreventCanvasZoom<HTMLInputElement>();
   const openaiRef = usePreventCanvasZoom<HTMLInputElement>();
   const klingRef = usePreventCanvasZoom<HTMLInputElement>();
@@ -33,7 +32,10 @@ export default function ApiKeyModal({ isOpen, onClose }: ApiKeyModalProps) {
     onClose();
   };
 
-  if (!isOpen) return null;
+  const { shouldRender, phase } = useExitAnimation(isOpen, 180);
+  if (!shouldRender) return null;
+
+  const animClass = phase === 'enter' ? 'animate-popup-in' : 'animate-popup-out';
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
@@ -41,7 +43,7 @@ export default function ApiKeyModal({ isOpen, onClose }: ApiKeyModalProps) {
         className="absolute inset-0 pointer-events-auto"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-sm mx-4 rounded-2xl glass-strong overflow-hidden pointer-events-auto">
+      <div className={`relative w-full max-w-sm mx-4 rounded-2xl glass-strong overflow-hidden pointer-events-auto ${animClass}`}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-line-subtle bg-surface">
           <div className="flex items-center gap-2.5">
@@ -57,24 +59,6 @@ export default function ApiKeyModal({ isOpen, onClose }: ApiKeyModalProps) {
 
         {/* Body */}
         <div className="p-5 space-y-5">
-          <div className="space-y-1.5">
-            <label className="text-[12px] text-secondary font-medium">Appearance</label>
-            <div className="flex gap-1.5">
-              {(['dark', 'light'] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTheme(t)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-medium cursor-pointer transition-all duration-200 ${
-                    theme === t ? 'glass-button-primary' : 'glass-toggle'
-                  }`}
-                >
-                  {t === 'dark' ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
-                  {t === 'dark' ? 'Dark' : 'Light'}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <div className="space-y-1.5">
             <label className="text-[12px] text-secondary font-medium">Gemini API Key</label>
             <input

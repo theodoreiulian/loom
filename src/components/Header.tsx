@@ -1,4 +1,4 @@
-import { Trash2, Settings } from 'lucide-react';
+import { Trash2, Settings, Sun, Moon } from 'lucide-react';
 import logo from '../assets/sublogo.png';
 import { useTheme } from '../context/ThemeContext';
 
@@ -8,7 +8,7 @@ interface HeaderProps {
 }
 
 export default function Header({ onOpenSettings, onClearCanvas }: HeaderProps) {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const isLight = theme === 'light';
 
   return (
@@ -26,8 +26,15 @@ export default function Header({ onOpenSettings, onClearCanvas }: HeaderProps) {
 
         <div className="flex-1" />
 
-        {/* Right: Clear + Settings */}
+        {/* Right: Theme toggle + Clear + Settings */}
         <div className="flex items-center gap-1.5 pr-2">
+          <button
+            onClick={toggleTheme}
+            aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
+            className="glass-button flex items-center justify-center w-8 h-8 p-0"
+          >
+            {isLight ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
+          </button>
           <button
             onClick={onClearCanvas}
             className="glass-button flex items-center gap-1.5 px-3 py-1.5 text-[12px]"

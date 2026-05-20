@@ -187,49 +187,49 @@ export const TEMPLATES: LoomTemplate[] = [
     description: 'Two-stage refinement → image → video',
     icon: Clapperboard,
     preview: {
-      viewBox: { width: 2252, height: 520 },
+      viewBox: { width: 2252, height: 760 },
       nodes: [
-        { x: 0, y: 0, w: 352, h: 200 },       // Prompt 1
-        { x: 0, y: 320, w: 352, h: 200 },     // Image Input
-        { x: 460, y: 140, w: 416, h: 280 },   // Engineer (image)
-        { x: 980, y: 140, w: 352, h: 280 },   // Image Gen
-        { x: 980, y: 0, w: 352, h: 200 },     // Prompt 2 — directly above Image Gen
-        { x: 1440, y: 80, w: 416, h: 280 },   // Engineer (video) — left & slightly up
-        { x: 1900, y: 80, w: 352, h: 200 },   // Video Gen — left & slightly up
+        { x: 0, y: 160, w: 352, h: 200 },     // Prompt 1
+        { x: 0, y: 480, w: 352, h: 200 },     // Image Input
+        { x: 460, y: 300, w: 416, h: 280 },   // Engineer (image)
+        { x: 980, y: 480, w: 352, h: 280 },   // Image Gen
+        { x: 980, y: 170, w: 352, h: 200 },   // Prompt 2
+        { x: 1440, y: 300, w: 416, h: 280 },  // Engineer (video)
+        { x: 1900, y: 300, w: 352, h: 200 },  // Video Gen
       ],
       edges: [
         // Prompt 1 → Engineer (image) text
-        { x1: 352, y1: 100, x2: 460, y2: 238, kind: 'text' },
+        { x1: 352, y1: 260, x2: 460, y2: 398, kind: 'text' },
         // Image Input → Engineer (image) image
-        { x1: 352, y1: 420, x2: 460, y2: 322, kind: 'image' },
+        { x1: 352, y1: 580, x2: 460, y2: 482, kind: 'image' },
         // Image Input → Image Gen image
-        { x1: 352, y1: 420, x2: 980, y2: 322, kind: 'image' },
+        { x1: 352, y1: 580, x2: 980, y2: 662, kind: 'image' },
         // Engineer (image) → Image Gen text
-        { x1: 876, y1: 280, x2: 980, y2: 238, kind: 'text' },
+        { x1: 876, y1: 440, x2: 980, y2: 578, kind: 'text' },
         // Prompt 2 → Engineer (video) text
-        { x1: 1332, y1: 100, x2: 1440, y2: 178, kind: 'text' },
+        { x1: 1332, y1: 270, x2: 1440, y2: 398, kind: 'text' },
         // Image Gen → Engineer (video) image
-        { x1: 1332, y1: 280, x2: 1440, y2: 262, kind: 'image' },
+        { x1: 1332, y1: 620, x2: 1440, y2: 482, kind: 'image' },
         // Image Gen → Video Gen image
-        { x1: 1332, y1: 280, x2: 1900, y2: 210, kind: 'image' },
+        { x1: 1332, y1: 620, x2: 1900, y2: 430, kind: 'image' },
         // Engineer (video) → Video Gen text
-        { x1: 1856, y1: 220, x2: 1900, y2: 150, kind: 'text' },
+        { x1: 1856, y1: 440, x2: 1900, y2: 370, kind: 'text' },
       ],
       handles: [
-        { x: 352, y: 100, kind: 'text' },     // Prompt 1 out
-        { x: 352, y: 420, kind: 'image' },    // Image Input out
-        { x: 460, y: 238, kind: 'text' },     // Engineer (image) text-in
-        { x: 460, y: 322, kind: 'image' },    // Engineer (image) image-in
-        { x: 876, y: 280, kind: 'text' },     // Engineer (image) out
-        { x: 980, y: 238, kind: 'text' },     // Image Gen text-in
-        { x: 980, y: 322, kind: 'image' },    // Image Gen image-in
-        { x: 1332, y: 280, kind: 'image' },   // Image Gen out
-        { x: 1332, y: 100, kind: 'text' },    // Prompt 2 out
-        { x: 1440, y: 178, kind: 'text' },    // Engineer (video) text-in
-        { x: 1440, y: 262, kind: 'image' },   // Engineer (video) image-in
-        { x: 1856, y: 220, kind: 'text' },    // Engineer (video) out
-        { x: 1900, y: 150, kind: 'text' },    // Video Gen text-in
-        { x: 1900, y: 210, kind: 'image' },   // Video Gen image-in
+        { x: 352, y: 260, kind: 'text' },     // Prompt 1 out
+        { x: 352, y: 580, kind: 'image' },    // Image Input out
+        { x: 460, y: 398, kind: 'text' },     // Engineer (image) text-in
+        { x: 460, y: 482, kind: 'image' },    // Engineer (image) image-in
+        { x: 876, y: 440, kind: 'text' },     // Engineer (image) out
+        { x: 980, y: 578, kind: 'text' },     // Image Gen text-in
+        { x: 980, y: 662, kind: 'image' },    // Image Gen image-in
+        { x: 1332, y: 620, kind: 'image' },   // Image Gen out
+        { x: 1332, y: 270, kind: 'text' },    // Prompt 2 out
+        { x: 1440, y: 398, kind: 'text' },    // Engineer (video) text-in
+        { x: 1440, y: 482, kind: 'image' },   // Engineer (video) image-in
+        { x: 1856, y: 440, kind: 'text' },    // Engineer (video) out
+        { x: 1900, y: 370, kind: 'text' },    // Video Gen text-in
+        { x: 1900, y: 430, kind: 'image' },   // Video Gen image-in
       ],
     },
     build: ({ centerX, centerY, nextId }) => {
@@ -242,8 +242,8 @@ export const TEMPLATES: LoomTemplate[] = [
       const videoGenId = nextId();
 
       // Centre the layout horizontally on the drop point; anchor the top row near it vertically.
-      const offsetX = centerX - 1386;
-      const offsetY = centerY - 40;
+      const offsetX = centerX - 476;
+      const offsetY = centerY - 200;
 
       const nodes: Node[] = [
         {
@@ -267,25 +267,25 @@ export const TEMPLATES: LoomTemplate[] = [
         {
           id: imageGenId,
           type: 'imageGen',
-          position: { x: offsetX + 980, y: offsetY + 140 },
+          position: { x: offsetX + 980, y: offsetY + 320 },
           data: defaultImageGen(),
         },
         {
           id: prompt2Id,
           type: 'prompt',
-          position: { x: offsetX + 1440, y: offsetY + 140 },
+          position: { x: offsetX + 980, y: offsetY + 10 },
           data: { prompt: '' } as PromptNodeData,
         },
         {
           id: engVideoId,
           type: 'promptEngineer',
-          position: { x: offsetX + 1900, y: offsetY + 140 },
+          position: { x: offsetX + 1440, y: offsetY + 140 },
           data: defaultEngineer('video'),
         },
         {
           id: videoGenId,
           type: 'videoGen',
-          position: { x: offsetX + 2420, y: offsetY + 140 },
+          position: { x: offsetX + 1900, y: offsetY + 140 },
           data: defaultVideoGen(),
         },
       ];
