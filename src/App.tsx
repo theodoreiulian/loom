@@ -52,22 +52,61 @@ import ApiKeyModal from './components/ApiKeyModal';
 import ConfirmDialog from './components/ConfirmDialog';
 import { SettingsPanelProvider } from './context/SettingsPanelContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
-import type { PromptNodeData, ImageInputNodeData, PromptEngineerNodeData, ImageGenNodeData, VideoGenNodeData } from './types';
+import { ProjectProvider, useProject } from './context/ProjectContext';
+import ProjectDashboard from './components/ProjectDashboard';
+import { getProjectData, saveProjectData, getProjects, createProject } from './store/projectStore';
+import type { PromptNodeData, ImageInputNodeData, PromptEngineerNodeData, ImageGenNodeData, VideoGenNodeData, NodeData } from './types';
 import { DEFAULT_IMAGE_SYSTEM_PROMPT, DEFAULT_VIDEO_SYSTEM_PROMPT } from './api/gemini';
 import { TEMPLATES } from './templates';
 
 let idCounter = 0;
-const getId = () => `node_${++idCounter}`;
+const getId = () => `node_${++idCounter}_${Date.now()}`;
 
 function Flow() {
-  const { screenToFlowPosition, addNodes } = useReactFlow();
+  const { currentProjectId } = useProject();
+  const { screenToFlowPosition, addNodes, setViewport, getViewport } = useReactFlow();
   const { theme } = useTheme();
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+
+  // Load project data
+  useEffect(() => {
+    if (!currentProjectId) return;
+    let isMounted = true;
+    
+    getProjectData(currentProjectId).then(data => {
+      if (isMounted && data) {
+        setNodes(data.nodes || []);
+        setEdges(data.edges || []);
+        if (data.viewport) {
+          setViewport(data.viewport);
+        }
+      }
+    });
+    
+    return () => { isMounted = false; };
+  }, [currentProjectId, setNodes, setEdges, setViewport]);
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (!currentProjectId) return;
+    // Don't save if nodes/edges haven't loaded yet (basic check)
+    // Actually, XYFlow state is synchronous here, but we could add a "loaded" flag if needed.
+    // For now, debounced save is fine.
+    const timeoutId = setTimeout(() => {
+      saveProjectData(currentProjectId, {
+        nodes,
+        edges,
+        viewport: getViewport(),
+      });
+    }, 1000);
+    
+    return () => clearTimeout(timeoutId);
+  }, [nodes, edges, currentProjectId, getViewport]);
 
   // React Flow renders the Background dots via an SVG `fill` attribute, which
   // doesn't resolve CSS variables — so we pass a literal color per theme.
@@ -453,15 +492,52 @@ function Flow() {
   );
 }
 
+function MainContent() {
+  const { currentProjectId, openProject } = useProject();
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const projects = await getProjects();
+        if (projects.length === 0) {
+          const newProj = await createProject('Untitled Project');
+          openProject(newProj.id);
+        }
+      } catch (e) {
+        console.error("Failed to initialize projects", e);
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+    init();
+  }, [openProject]);
+
+  if (isInitializing) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!currentProjectId) {
+    return <ProjectDashboard />;
+  }
+  return <Flow />;
+}
+
 export default function App() {
   return (
     <div className="w-full h-full">
       <ThemeProvider>
-        <ReactFlowProvider>
-          <SettingsPanelProvider>
-            <Flow />
-          </SettingsPanelProvider>
-        </ReactFlowProvider>
+        <ProjectProvider>
+          <ReactFlowProvider>
+            <SettingsPanelProvider>
+              <MainContent />
+            </SettingsPanelProvider>
+          </ReactFlowProvider>
+        </ProjectProvider>
       </ThemeProvider>
     </div>
   );

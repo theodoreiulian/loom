@@ -11,6 +11,7 @@ interface ConfirmDialogProps {
   icon?: ReactNode;
   onConfirm: () => void;
   onClose: () => void;
+  isDestructive?: boolean;
 }
 
 export default function ConfirmDialog({
@@ -22,6 +23,7 @@ export default function ConfirmDialog({
   icon,
   onConfirm,
   onClose,
+  isDestructive = false,
 }: ConfirmDialogProps) {
   const { shouldRender, phase } = useExitAnimation(isOpen, 180);
   if (!shouldRender) return null;
@@ -66,7 +68,11 @@ export default function ConfirmDialog({
               onConfirm();
               onClose();
             }}
-            className="px-4 py-2 rounded-full glass-button-primary text-[12px] font-medium"
+            className={`px-4 py-2 rounded-full text-[12px] font-medium transition-colors ${
+              isDestructive
+                ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/30'
+                : 'glass-button-primary'
+            }`}
           >
             {confirmLabel}
           </button>
