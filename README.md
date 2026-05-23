@@ -54,3 +54,7 @@ React 19, Vite, TypeScript, XYFlow for the graph, Tailwind 4 for styling.
 Loom only covers a handful of providers right now. If you've been wanting Replicate, Runway, Midjourney, Luma, local SDXL via a server URL, audio models, whatever — open a PR!
 
 Beyond new providers, there's plenty of room for ideas that change how the editor itself works: batch runs, looping nodes, conditional branches, saving/loading graphs, sharing presets, better caching of intermediate outputs.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
