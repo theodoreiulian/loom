@@ -3,7 +3,7 @@
 A node-based editor for chaining AI image, video, and text generation. Runs entirely in your browser — you bring your own API keys, and requests go straight from your browser to the provider. No backend, no accounts, no credits to buy.
 
 <p align="center">
-  <img src="src/assets/logo.png" alt="Loom" width="80" />
+  <img src="src/assets/logo.png" alt="Loom" width="100" />
 </p>
 
 ## Why
