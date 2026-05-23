@@ -15,6 +15,7 @@ export interface PromptEngineerNodeData extends Record<string, unknown> {
   customSystemPromptImage: string;
   customSystemPromptVideo: string;
   referenceImages: string[];
+  model?: 'gemini-3-flash-preview' | 'gemini-3.1-flash-lite';
 }
 
 export type ImageGenProvider = 'gemini' | 'openai';

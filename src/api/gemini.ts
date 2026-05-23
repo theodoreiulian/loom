@@ -124,9 +124,10 @@ export async function enhancePromptWithGemini(
   targetMode: 'image' | 'video',
   apiKey: string,
   customSystemPrompt?: string,
-  referenceImages?: string[]
+  referenceImages?: string[],
+  model: string = 'gemini-3-flash-preview'
 ): Promise<string> {
-  const url = `${GEMINI_API_BASE}/models/gemini-3.1-flash-lite-preview:generateContent?key=${apiKey}`;
+  const url = `${GEMINI_API_BASE}/models/${model}:generateContent?key=${apiKey}`;
 
   const systemPrompt = customSystemPrompt && customSystemPrompt.trim()
     ? customSystemPrompt.trim()
@@ -174,10 +175,10 @@ export async function enhancePromptWithGemini(
   const data = await response.json();
 
   for (const candidate of data.candidates || []) {
-    for (const part of candidate.content?.parts || []) {
-      if (part.text) {
-        return part.text.trim();
-      }
+    const parts = candidate.content?.parts || [];
+    const textParts = parts.filter((p: any) => p.text).map((p: any) => p.text);
+    if (textParts.length > 0) {
+      return textParts.join('').trim();
     }
   }
 

@@ -435,8 +435,29 @@ function VideoGenSettings({ data, update }: { data: VideoGenNodeData; update: (p
 function PromptEngineerSettings({ data, update }: { data: PromptEngineerNodeData; update: (p: Partial<PromptEngineerNodeData>) => void }) {
   const imgRef = usePreventCanvasZoom<HTMLTextAreaElement>();
   const vidRef = usePreventCanvasZoom<HTMLTextAreaElement>();
+  
+  const models = ['gemini-3-flash-preview', 'gemini-3.1-flash-lite'] as const;
+  const currentModel = data.model || 'gemini-3-flash-preview';
+
   return (
     <div className="space-y-5">
+      <div>
+        <label className="text-[12px] text-secondary mb-2 block font-medium">Model</label>
+        <div className="flex gap-1.5">
+          {models.map((m) => (
+            <button
+              key={m}
+              onClick={() => update({ model: m })}
+              className={`flex-1 px-3 py-2 rounded-full text-[11px] font-medium cursor-pointer transition-all duration-200 ${
+                currentModel === m ? 'glass-button-primary' : 'glass-toggle'
+              }`}
+            >
+              {m === 'gemini-3-flash-preview' ? 'Flash' : 'Flash Lite'}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex items-center justify-between">
         <span className="text-[12px] text-secondary font-medium">System Prompts</span>
         <button

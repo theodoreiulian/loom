@@ -4,12 +4,14 @@ import { Wand2, ImageIcon, Film, AlertCircle, Loader2, Copy, Check, Settings2 } 
 import type { PromptEngineerNodeData, PromptNodeData, ImageInputNodeData, ImageGenNodeData } from '../types';
 import { enhancePromptWithGemini } from '../api/gemini';
 import { useSettingsPanel } from '../context/SettingsPanelContext';
+import { usePreventCanvasZoom } from '../hooks/usePreventCanvasZoom';
 import { HANDLE_TEXT, HANDLE_IMAGE } from './handleStyles';
 
 function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNodeData }) {
   const { updateNodeData, getNode } = useReactFlow();
   const edges = useEdges();
   const { openSettings } = useSettingsPanel();
+  const textareaRef = usePreventCanvasZoom<HTMLTextAreaElement>();
   const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -56,7 +58,8 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
     updateNodeData(id, { ...data, status: 'processing', rawPrompt: connected.prompt, errorMessage: null, referenceImages: connected.images });
     try {
       const customPrompt = data.targetMode === 'image' ? data.customSystemPromptImage : data.customSystemPromptVideo;
-      const enhanced = await enhancePromptWithGemini(connected.prompt, data.targetMode || 'image', apiKey, customPrompt, connected.images);
+      const model = data.model || 'gemini-3-flash-preview';
+      const enhanced = await enhancePromptWithGemini(connected.prompt, data.targetMode || 'image', apiKey, customPrompt, connected.images, model);
       updateNodeData(id, { ...data, status: 'done', rawPrompt: connected.prompt, enhancedPrompt: enhanced, errorMessage: null, referenceImages: connected.images });
     } catch (err: any) {
       updateNodeData(id, { ...data, status: 'error', errorMessage: err.message || 'Prompt enhancement failed' });
@@ -145,8 +148,13 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
                 {copied ? 'Copied' : 'Copy'}
               </button>
             </div>
-            <div className="px-3 py-2.5 rounded-xl bg-surface-recessed border border-line-subtle mt-1">
-              <p className="text-[12px] text-secondary leading-relaxed">{data.enhancedPrompt}</p>
+            <div className="mt-1">
+              <textarea
+                ref={textareaRef}
+                value={data.enhancedPrompt}
+                onChange={(e) => updateNodeData(id, { ...data, enhancedPrompt: e.target.value })}
+                className="nodrag w-full min-h-[120px] px-3 py-2.5 rounded-xl bg-surface-recessed border border-line-subtle text-[12px] text-secondary leading-relaxed resize-y focus:outline-none focus:border-line transition-colors custom-scrollbar"
+              />
             </div>
           </div>
         )}
