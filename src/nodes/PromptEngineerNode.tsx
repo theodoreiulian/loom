@@ -153,7 +153,7 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
                 ref={textareaRef}
                 value={data.enhancedPrompt}
                 onChange={(e) => updateNodeData(id, { ...data, enhancedPrompt: e.target.value })}
-                className="nodrag w-full min-h-[120px] px-3 py-2.5 rounded-xl bg-surface-recessed border border-line-subtle text-[12px] text-secondary leading-relaxed resize-y focus:outline-none focus:border-line transition-colors custom-scrollbar"
+                className="nodrag nowheel w-full min-h-[120px] px-3 py-2.5 rounded-xl bg-surface-recessed border border-line-subtle text-[12px] text-secondary leading-relaxed resize-y focus:outline-none focus:border-line transition-colors custom-scrollbar"
               />
             </div>
           </div>
