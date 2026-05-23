@@ -36,14 +36,17 @@ You plug your API keys directly into your browser's local storage. Your browser 
 
 **The Zero-Markup "BYOK" Setup**
 Local, completely private API key integration with built-in guides:
+
 https://github.com/user-attachments/assets/54312b8a-7c8e-4186-bdd7-82488e327a9b
 
 **Text-to-Image Pipeline**
 Using an LLM Prompt Engineer node to automatically refine a basic prompt into a high-quality generation prompt:
+
 https://github.com/user-attachments/assets/f0d4b4b1-77a1-4002-8830-0262a492d682
 
 **Text + Reference Image to Image**
 Combining text input with a reference image to guide generation style and content:
+
 https://github.com/user-attachments/assets/96f41ce9-bc4b-49e2-8ada-4a445058f225
 
 ---
