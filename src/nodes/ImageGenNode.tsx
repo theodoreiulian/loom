@@ -95,6 +95,7 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
     }
     const provider = data.provider || 'gemini';
     const apiKey = localStorage.getItem(provider === 'openai' ? 'Loom:api:openai' : 'Loom:api:gemini');
+
     if (!apiKey) {
       const providerName = provider === 'openai' ? 'OpenAI' : 'Gemini';
       updateNodeData(id, { ...data, status: 'error', errorMessage: `Set your ${providerName} API key in Settings` });
@@ -109,7 +110,7 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
       let results: string[] = [];
 
       if (provider === 'openai') {
-        const images = await generateImageWithOpenAI(connected.prompt, connected.images, apiKey, {
+        const images = await generateImageWithOpenAI(connected.prompt, connected.images, apiKey as string, {
           model: data.model,
           aspectRatio: data.aspectRatio,
           negativePrompt: data.negativePrompt,
@@ -127,7 +128,7 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
         const promises: Promise<string>[] = [];
         for (let i = 0; i < count; i++) {
           promises.push(
-            generateImageWithGemini(connected.prompt, connected.images, apiKey, {
+            generateImageWithGemini(connected.prompt, connected.images, apiKey as string, {
               model: data.model,
               aspectRatio: data.aspectRatio,
               negativePrompt: data.negativePrompt,

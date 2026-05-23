@@ -47,8 +47,10 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
     const provider = data.provider || 'kling';
     const apiKeyName = provider === 'veo' ? 'gemini' : provider;
     const apiKey = localStorage.getItem(`Loom:api:${apiKeyName}`);
+
     if (!apiKey) {
-      updateNodeData(id, { ...data, status: 'error', errorMessage: `Set your ${provider === 'kling' ? 'Kling' : 'Gemini'} API key in Settings` });
+      const providerName = provider === 'kling' ? 'Kling' : 'Gemini';
+      updateNodeData(id, { ...data, status: 'error', errorMessage: `Set your ${providerName} API key in Settings` });
       return;
     }
     setIsProcessing(true);

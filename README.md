@@ -1,36 +1,60 @@
-# Loom
-
-**Loom** is a modern, node-based AI workflow editor designed for creative professionals and developers. Orchestrate complex AI pipelines for image and video generation through an intuitive visual interface.
-
 <p align="center">
   <img src="src/assets/logo.png" alt="Loom" width="120" />
 </p>
 
-## Demo
+<h1 align="center">Loom ✦ The Zero-Markup AI Workflow Builder</h1>
 
-See Loom in action — building and running AI generation workflows:
+<p align="center">
+  <strong>Stop paying 300% markups on AI generation. Bring your own keys and build complex node-based visual pipelines for exactly what the API costs.</strong>
+</p>
 
-https://github.com/user-attachments/assets/4409bccf-f4c1-4f6c-99e6-c681973ec66c
+---
 
-https://github.com/user-attachments/assets/275e0d03-d1ae-4cd5-9e8e-520b84480de8
+## The Problem with AI Wrappers
+Node-based AI editors are powerful, but the current ecosystem is fundamentally flawed. Most platforms (like hosted ComfyUI services or proprietary node editors) act as middlemen. They force you to buy "credits" on their platform, charging you massive markups on top of the base compute/API costs. You lose control of your billing, pay inflated prices, and get locked into their ecosystem.
 
-## Features
+## The Solution: Bring Your Own Key (BYOK)
+**Loom** is a completely open-source, beautifully designed node editor built for the BYOK era. 
 
-- **Visual Workflow Builder**: Connect nodes to create sophisticated AI generation logic using [XYFlow](https://xyflow.com/).
-- **Multi-Model Integration**:
-  - **Gemini 3.1 Flash**: High-performance image generation and intelligent prompt engineering.
-  - **Kling & Veo**: Native integration placeholders for next-gen video generation.
-- **Smart Prompt Engineering**: Built-in nodes to refine, expand, and optimize your creative prompts using LLMs.
-- **Interactive Node Settings**: Fine-tune aspect ratios, resolutions, and model parameters on the fly.
-- **Modern Tech Stack**: Powered by React 19, Vite, and Tailwind CSS 4.
+There is no backend. There is no database. There is no Loom subscription.
 
-## Quick Start
+You plug your API keys directly into your browser's local storage. Your browser talks directly to Google, OpenAI, or Kling. You pay exactly what the API costs, directly to the provider, with **zero middleman markup**.
+
+### ✨ Features
+- **100% Client-Side & Private**: Your API keys never leave your browser. They are stored securely in `localStorage`.
+- **Zero Markups**: By connecting directly to the model APIs, you pay base developer costs.
+- **Visual Node Workflows**: Drag, drop, and connect nodes to create infinitely complex, non-linear generation pipelines.
+- **Multi-Model Magic**: 
+  - 🎨 **Image Generation**: OpenAI (DALL-E) & Google Gemini
+  - 🎬 **Video Generation**: Kling AI & Google Veo 
+  - 🧠 **Prompt Engineering**: Use LLMs as nodes to auto-refine and enhance your prompts before passing them to generators.
+- **Export & Share**: Download all generated assets locally in one click.
+
+---
+
+## 🎥 Demos
+
+**The Zero-Markup "BYOK" Setup**
+Local, completely private API key integration with built-in guides:
+https://github.com/user-attachments/assets/54312b8a-7c8e-4186-bdd7-82488e327a9b
+
+**Text-to-Image Pipeline**
+Using an LLM Prompt Engineer node to automatically refine a basic prompt into a high-quality generation prompt:
+https://github.com/user-attachments/assets/f0d4b4b1-77a1-4002-8830-0262a492d682
+
+**Text + Reference Image to Image**
+Combining text input with a reference image to guide generation style and content:
+https://github.com/user-attachments/assets/96f41ce9-bc4b-49e2-8ada-4a445058f225
+
+---
+
+## 🚀 Quick Start
+
+Run Loom locally in less than a minute.
 
 ### Prerequisites
 - Node.js (v18+)
-- npm or yarn
-- A Gemini API Key (for image/text generation)
-- A Kling API Key (optional, for video generation)
+- API Keys for the providers you want to use (Gemini, OpenAI, Kling). 
 
 ### Installation
 
@@ -50,20 +74,14 @@ https://github.com/user-attachments/assets/275e0d03-d1ae-4cd5-9e8e-520b84480de8
    npm run dev
    ```
 
-4. **Add your API Key**
-   Click the **Settings** icon in the header to enter your Gemini API key.
+4. **Add your API Keys**
+   Click the **Settings** icon in the header. Enter your keys. Loom includes step-by-step guides inside the app if you don't know how to generate an API key for a specific provider!
 
-## Modifying Loom
+---
 
-Loom is designed to be highly extensible. Here's how you can add your own modifications:
+## 🛠️ Architecture & Tech Stack
 
-### Adding a New Node Type
-1. Create a new component in `src/nodes/` (e.g., `CustomNode.tsx`).
-2. Register your node in `src/nodes/index.ts`.
-3. Add the corresponding data interface in `src/types.ts`.
-4. Update the `Sidebar` to include your new node for drag-and-drop.
-
-## Technology Stack
+Loom is built to be blisteringly fast and highly extensible.
 
 - **Framework**: [React 19](https://react.dev/)
 - **Build Tool**: [Vite](https://vitejs.dev/)
@@ -71,25 +89,27 @@ Loom is designed to be highly extensible. Here's how you can add your own modifi
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 
-## Contributing
+### Adding Custom Nodes
+Loom's architecture makes it trivial to add new integrations. 
+1. Create your component in `src/nodes/`.
+2. Register it in `src/nodes/index.ts`.
+3. Add the type definition in `src/types.ts`.
+4. Drop it into the `Sidebar.tsx`.
 
-Loom is open to collaboration. If you've built a meaningful improvement — a new node type, a new API integration, a UI enhancement — and think it belongs in the main repo, you're welcome to propose it.
+## 🤝 Contributing
 
-All contributions go through a pull request review process and require approval before being merged.
+We are building the definitive open-source node editor for AI. If you want to add integrations for Midjourney, RunPod, Replicate, or local SDXL inference—we want your PRs.
 
-### How to contribute
+1. **Fork the repository**.
+2. **Create a branch** (`git checkout -b feature/amazing-new-node`).
+3. **Commit your changes**.
+4. **Open a Pull Request**.
 
-1. **Fork the repository** on GitHub.
-2. **Create a branch** for your change:
-   ```bash
-   git checkout -b my-feature
-   ```
-3. **Make your changes**, keeping them focused and minimal — one feature or fix per pull request.
-4. **Test your changes** locally with `npm run dev` and make sure `npm run build` passes without errors.
-5. **Open a pull request** against the `main` branch with a clear description of what you changed and why.
+Please ensure your code passes `npm run lint` and `npm run build` before submitting.
 
-Pull requests will be reviewed and merged at the maintainer's discretion.
-
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+*If Loom saves you money on your AI workflows, please consider giving the repo a ⭐ to help others find it!*
