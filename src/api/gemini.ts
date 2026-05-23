@@ -157,7 +157,7 @@ export async function enhancePromptWithGemini(
     ],
     generationConfig: {
       temperature: 0.7,
-      maxOutputTokens: 512,
+      maxOutputTokens: 2048,
     },
   };
 
