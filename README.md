@@ -34,12 +34,15 @@ Needs Node 18+. Open the settings panel in the header to paste your API keys. Th
 ## Demos
 
 Setup and key management:
+
 https://github.com/user-attachments/assets/54312b8a-7c8e-4186-bdd7-82488e327a9b
 
 Text-to-image with an LLM prompt-refiner in the middle:
+
 https://github.com/user-attachments/assets/f0d4b4b1-77a1-4002-8830-0262a492d682
 
 Text + reference image to image:
+
 https://github.com/user-attachments/assets/96f41ce9-bc4b-49e2-8ada-4a445058f225
 
 ## Stack
