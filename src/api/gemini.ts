@@ -1,100 +1,14 @@
-const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+import { GOOGLE_API_BASE } from './providers/google';
+import { mimeTypeOf, stripDataUrlPrefix } from './media';
+import { asArray, asString, dig } from './json';
 
-export async function generateImageWithGemini(
-  prompt: string,
-  referenceImages: string[],
-  apiKey: string,
-  params: {
-    model?: string;
-    aspectRatio?: string;
-    negativePrompt?: string;
-    resolution?: string;
-    numberOfImages?: number;
-  } = {}
-): Promise<string> {
-  const modelName = params.model || 'gemini-3.1-flash-image-preview';
-  const url = `${GEMINI_API_BASE}/models/${modelName}:generateContent?key=${apiKey}`;
+export const PROMPT_ENGINEER_MODELS = [
+  { id: 'gemini-3.8-flash', label: 'Flash' },
+  { id: 'gemini-3.5-flash-lite', label: 'Flash Lite' },
+  { id: 'gemini-3.1-pro-preview', label: 'Pro' },
+] as const;
 
-  let finalPrompt = prompt;
-
-  if (params.aspectRatio) {
-    finalPrompt += `\n\nAspect ratio: ${params.aspectRatio}.`;
-  }
-  if (params.negativePrompt && params.negativePrompt.trim()) {
-    finalPrompt += `\n\nAvoid: ${params.negativePrompt.trim()}.`;
-  }
-  if (params.resolution) {
-    finalPrompt += `\n\nResolution: ${params.resolution}.`;
-  }
-
-  const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [];
-
-  for (const img of referenceImages) {
-    const base64Data = img.split(',')[1];
-    const mimeType = img.match(/data:([^;]+);/)?.[1] || 'image/png';
-    parts.push({
-      inlineData: {
-        mimeType,
-        data: base64Data,
-      },
-    });
-  }
-
-  parts.push({ text: finalPrompt });
-
-  const body: Record<string, unknown> = {
-    contents: [
-      {
-        role: 'user',
-        parts,
-      },
-    ],
-    generationConfig: {
-      responseModalities: ['Text', 'Image'],
-    },
-  };
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.error?.message || `Gemini API error: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  const blockReason = data.promptFeedback?.blockReason;
-  if (blockReason) {
-    if (blockReason === 'SAFETY') {
-      throw new Error('Blocked by Gemini safety filters. Try rephrasing your prompt.');
-    }
-    throw new Error(
-      'Request blocked by Gemini (reason: ' + blockReason + '). ' +
-      'This often happens with certain reference images or prompt content — try a different image or prompt.'
-    );
-  }
-
-  for (const candidate of data.candidates || []) {
-    const finishReason = candidate.finishReason;
-    if (finishReason && finishReason !== 'STOP') {
-      if (finishReason === 'SAFETY') {
-        throw new Error('Blocked by Gemini safety filters. Try rephrasing your prompt.');
-      }
-      throw new Error('Generation stopped early (reason: ' + finishReason + '). Try a different prompt.');
-    }
-    for (const part of candidate.content?.parts || []) {
-      if (part.inlineData?.data) {
-        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-      }
-    }
-  }
-
-  throw new Error('No image was returned. The model responded but produced no image data — try again or use a different prompt.');
-}
+export const DEFAULT_PROMPT_ENGINEER_MODEL = 'gemini-3.8-flash';
 
 export const DEFAULT_IMAGE_SYSTEM_PROMPT = `You are an elite prompt engineer specializing in AI image generation. Your job is to transform rough, vague, or simple user ideas into highly detailed, vivid, production-ready image generation prompts.
 
@@ -125,9 +39,9 @@ export async function enhancePromptWithGemini(
   apiKey: string,
   customSystemPrompt?: string,
   referenceImages?: string[],
-  model: string = 'gemini-3-flash-preview'
+  model: string = DEFAULT_PROMPT_ENGINEER_MODEL
 ): Promise<string> {
-  const url = `${GEMINI_API_BASE}/models/${model}:generateContent?key=${apiKey}`;
+  const url = `${GOOGLE_API_BASE}/models/${model}:generateContent`;
 
   const systemPrompt = customSystemPrompt && customSystemPrompt.trim()
     ? customSystemPrompt.trim()
@@ -138,9 +52,7 @@ export async function enhancePromptWithGemini(
   const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [];
 
   for (const img of referenceImages || []) {
-    const base64Data = img.split(',')[1];
-    const mimeType = img.match(/data:([^;]+);/)?.[1] || 'image/png';
-    parts.push({ inlineData: { mimeType, data: base64Data } });
+    parts.push({ inlineData: { mimeType: mimeTypeOf(img), data: stripDataUrlPrefix(img) } });
   }
 
   parts.push({ text: rawPrompt });
@@ -163,24 +75,28 @@ export async function enhancePromptWithGemini(
 
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Gemini rejected your Google API key. Check it in Settings → API Keys.');
+    }
     throw new Error(err.error?.message || `Gemini API error: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data: unknown = await response.json();
 
-  for (const candidate of data.candidates || []) {
-    const parts = candidate.content?.parts || [];
-    const textParts = parts.filter((p: any) => p.text).map((p: any) => p.text);
-    if (textParts.length > 0) {
-      return textParts.join('').trim();
-    }
+  for (const candidate of asArray(dig(data, 'candidates'))) {
+    const text = asArray(dig(candidate, 'content', 'parts'))
+      .map((part) => asString(dig(part, 'text')))
+      .filter((part): part is string => Boolean(part))
+      .join('')
+      .trim();
+    if (text) return text;
   }
 
-  throw new Error('No enhanced prompt was returned. Response: ' + JSON.stringify(data));
+  throw new Error('Gemini returned no enhanced prompt. Try again or simplify the prompt.');
 }

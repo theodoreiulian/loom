@@ -6,7 +6,6 @@ import {
   useNodesState,
   useEdgesState,
   type Connection,
-  type Edge as FlowEdge,
   type Node,
   type Edge,
   ReactFlowProvider,
@@ -14,33 +13,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-type HandleKind = 'text' | 'image';
-
-// Single source of truth: every handle in the app, and what it carries.
-// If a handle isn't listed here, no edge to/from it will be accepted.
-const HANDLE_KIND: Record<string, HandleKind> = {
-  // sources
-  'prompt-text-out': 'text',
-  'image-input-out': 'image',
-  'engineer-out': 'text',
-  'image-out': 'image',
-  // targets
-  'engineer-text-in': 'text',
-  'engineer-image-in': 'image',
-  'image-text-in': 'text',
-  'image-image-in': 'image',
-  'video-text-in': 'text',
-  'video-image-in': 'image',
-};
-
-const isValidConnection = (c: Connection | FlowEdge): boolean => {
-  if (!c.source || !c.target || !c.sourceHandle || !c.targetHandle) return false;
-  if (c.source === c.target) return false;
-  const src = HANDLE_KIND[c.sourceHandle];
-  const tgt = HANDLE_KIND[c.targetHandle];
-  return !!src && !!tgt && src === tgt;
-};
-
+import { isSingleSourceHandle, isValidConnection } from './graph/handles';
 import { nodeTypes } from './nodes';
 import { edgeTypes } from './edges';
 import Header from './components/Header';
@@ -55,8 +28,8 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { ProjectProvider, useProject } from './context/ProjectContext';
 import ProjectDashboard from './components/ProjectDashboard';
 import { getProjectData, saveProjectData, getProjects, createProject } from './store/projectStore';
-import type { PromptNodeData, ImageInputNodeData, PromptEngineerNodeData, ImageGenNodeData, VideoGenNodeData, NodeData } from './types';
-import { DEFAULT_IMAGE_SYSTEM_PROMPT, DEFAULT_VIDEO_SYSTEM_PROMPT } from './api/gemini';
+import type { NodeData } from './types';
+import { createNodeData, migrateEdges, migrateNodes } from './nodes/defaults';
 import { TEMPLATES } from './templates';
 
 let idCounter = 0;
@@ -80,8 +53,9 @@ function Flow() {
     
     getProjectData(currentProjectId).then(data => {
       if (isMounted && data) {
-        setNodes(data.nodes || []);
-        setEdges(data.edges || []);
+        const nodes = migrateNodes(data.nodes || []);
+        setNodes(nodes as Node<NodeData>[]);
+        setEdges(migrateEdges(data.edges || [], nodes));
         if (data.viewport) {
           setViewport(data.viewport);
         }
@@ -139,8 +113,7 @@ function Flow() {
       setEdges((eds) => {
         // Text handles accept only one source — replace any existing edge.
         // Image handles accept multiple sources — just append.
-        const kind = params.targetHandle ? HANDLE_KIND[params.targetHandle] : null;
-        const cleaned = kind === 'text'
+        const cleaned = isSingleSourceHandle(params.targetHandle)
           ? eds.filter((e) => !(e.target === params.target && e.targetHandle === params.targetHandle))
           : eds;
         return addEdge(params, cleaned);
@@ -185,96 +158,14 @@ function Flow() {
 
       if (!type) return;
 
-      let newNode: Node;
+      const data = createNodeData(type);
+      if (!data) return;
 
-      switch (type) {
-        case 'prompt':
-          newNode = {
-            id: getId(),
-            type: 'prompt',
-            position,
-            data: {
-              prompt: '',
-            } as PromptNodeData,
-          };
-          break;
-        case 'imageInput':
-          newNode = {
-            id: getId(),
-            type: 'imageInput',
-            position,
-            data: {
-              images: [],
-            } as ImageInputNodeData,
-          };
-          break;
-        case 'imageGen':
-          newNode = {
-            id: getId(),
-            type: 'imageGen',
-            position,
-            data: {
-              status: 'idle',
-              resultImages: [],
-              errorMessage: null,
-              provider: 'gemini',
-              model: 'gemini-3.1-flash-image-preview',
-              aspectRatio: '1:1',
-              negativePrompt: '',
-              resolution: '1K',
-              numberOfImages: 1,
-              quality: 'auto',
-              outputFormat: 'png',
-              outputCompression: 100,
-              background: 'auto',
-              inputFidelity: 'low',
-              moderation: 'auto',
-            } as ImageGenNodeData,
-          };
-          break;
-        case 'videoGen':
-          newNode = {
-            id: getId(),
-            type: 'videoGen',
-            position,
-            data: {
-              status: 'idle',
-              resultVideo: null,
-              errorMessage: null,
-              provider: 'kling',
-              model: 'kling-v1',
-              mode: 'starting-frame',
-              duration: 5,
-              aspectRatio: '16:9',
-              negativePrompt: '',
-              resolution: '720p',
-            } as VideoGenNodeData,
-          };
-          break;
-        case 'promptEngineer':
-          newNode = {
-            id: getId(),
-            type: 'promptEngineer',
-            position,
-            data: {
-              status: 'idle',
-              targetMode: 'image',
-              rawPrompt: '',
-              enhancedPrompt: '',
-              errorMessage: null,
-              customSystemPromptImage: DEFAULT_IMAGE_SYSTEM_PROMPT,
-              customSystemPromptVideo: DEFAULT_VIDEO_SYSTEM_PROMPT,
-              referenceImages: [],
-            } as PromptEngineerNodeData,
-          };
-          break;
-        default:
-          return;
-      }
+      const newNode: Node = { id: getId(), type, position, data };
 
       addNodes(newNode);
     },
-    [screenToFlowPosition, addNodes, setNodes, setEdges]
+    [screenToFlowPosition, addNodes, setEdges]
   );
 
   const handleDragStart = useCallback((event: React.DragEvent, nodeType: string) => {
@@ -288,87 +179,18 @@ function Flow() {
       const centerY = window.innerHeight / 2;
       const position = screenToFlowPosition({ x: centerX, y: centerY });
 
-      let newNode: Node;
-      switch (type) {
-        case 'prompt':
-          newNode = {
-            id: getId(),
-            type: 'prompt',
-            position: { x: position.x - 200, y: position.y },
-            data: { prompt: '' } as PromptNodeData,
-          };
-          break;
-        case 'imageInput':
-          newNode = {
-            id: getId(),
-            type: 'imageInput',
-            position: { x: position.x - 400, y: position.y },
-            data: { images: [] } as ImageInputNodeData,
-          };
-          break;
-        case 'imageGen':
-          newNode = {
-            id: getId(),
-            type: 'imageGen',
-            position,
-            data: {
-              status: 'idle',
-              resultImages: [],
-              errorMessage: null,
-              provider: 'gemini',
-              model: 'gemini-3.1-flash-image-preview',
-              aspectRatio: '1:1',
-              negativePrompt: '',
-              resolution: '1K',
-              numberOfImages: 1,
-              quality: 'auto',
-              outputFormat: 'png',
-              outputCompression: 100,
-              background: 'auto',
-              inputFidelity: 'low',
-              moderation: 'auto',
-            } as ImageGenNodeData,
-          };
-          break;
-        case 'videoGen':
-          newNode = {
-            id: getId(),
-            type: 'videoGen',
-            position: { x: position.x + 200, y: position.y },
-            data: {
-              status: 'idle',
-              resultVideo: null,
-              errorMessage: null,
-              provider: 'kling',
-              model: 'kling-v1',
-              mode: 'starting-frame',
-              duration: 5,
-              aspectRatio: '16:9',
-              negativePrompt: '',
-              resolution: '720p',
-            } as VideoGenNodeData,
-          };
-          break;
-        case 'promptEngineer':
-          newNode = {
-            id: getId(),
-            type: 'promptEngineer',
-            position,
-            data: {
-              status: 'idle',
-              targetMode: 'image',
-              rawPrompt: '',
-              enhancedPrompt: '',
-              errorMessage: null,
-              customSystemPromptImage: DEFAULT_IMAGE_SYSTEM_PROMPT,
-              customSystemPromptVideo: DEFAULT_VIDEO_SYSTEM_PROMPT,
-              referenceImages: [],
-            } as PromptEngineerNodeData,
-          };
-          break;
-        default:
-          return;
-      }
+      const data = createNodeData(type);
+      if (!data) return;
+
+      // Nudge inputs left and video output right so a fresh chain reads L→R.
+      const offsetX = type === 'imageInput' ? -400 : type === 'prompt' ? -200 : type === 'videoGen' ? 200 : 0;
+      const newNode: Node = {
+        id: getId(),
+        type,
+        position: { x: position.x + offsetX, y: position.y },
+        data,
+      };
+
       addNodes(newNode);
     },
     [screenToFlowPosition, addNodes]
