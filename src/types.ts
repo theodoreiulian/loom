@@ -1,3 +1,7 @@
+import type { ParamValues } from './models/types';
+
+export type NodeStatus = 'idle' | 'processing' | 'done' | 'error';
+
 export interface PromptNodeData extends Record<string, unknown> {
   prompt: string;
 }
@@ -6,8 +10,14 @@ export interface ImageInputNodeData extends Record<string, unknown> {
   images: string[];
 }
 
+/** Gemini text models offered for prompt enhancement. */
+export type PromptEngineerModel =
+  | 'gemini-3.8-flash'
+  | 'gemini-3.5-flash-lite'
+  | 'gemini-3.1-pro-preview';
+
 export interface PromptEngineerNodeData extends Record<string, unknown> {
-  status: 'idle' | 'processing' | 'done' | 'error';
+  status: NodeStatus;
   targetMode: 'image' | 'video';
   rawPrompt: string;
   enhancedPrompt: string;
@@ -15,48 +25,43 @@ export interface PromptEngineerNodeData extends Record<string, unknown> {
   customSystemPromptImage: string;
   customSystemPromptVideo: string;
   referenceImages: string[];
-  model?: 'gemini-3-flash-preview' | 'gemini-3.1-flash-lite';
+  model?: PromptEngineerModel;
 }
 
-export type ImageGenProvider = 'gemini' | 'openai';
-
+/**
+ * Generator nodes store a catalog model id plus that model's parameter values.
+ * See `src/models/` for the registry that gives those values meaning.
+ */
 export interface ImageGenNodeData extends Record<string, unknown> {
-  status: 'idle' | 'processing' | 'done' | 'error';
+  status: NodeStatus;
   resultImages: string[];
   errorMessage: string | null;
-  provider: ImageGenProvider;
-  model: 'gemini-3.1-flash-image-preview' | 'gemini-3-pro-image-preview' | 'gpt-image-2';
-  aspectRatio: '1:1' | '4:3' | '16:9' | '3:4' | '9:16' | '21:9' | '9:21' | '2:1' | '1:2' | '3:2' | '2:3';
-  negativePrompt: string;
-  resolution: '1K' | '2K' | '4K';
-  numberOfImages: number;
-  quality: 'auto' | 'low' | 'medium' | 'high';
-  outputFormat: 'png' | 'jpeg' | 'webp';
-  outputCompression: number;
-  background: 'transparent' | 'opaque' | 'auto';
-  inputFidelity: 'high' | 'low';
-  moderation: 'low' | 'auto';
+  modelId: string;
+  params: ParamValues;
+  /** Transient queue/progress label surfaced while running. */
+  progress?: string | null;
 }
-
-export type VideoProvider = 'kling' | 'veo';
 
 export interface VideoGenNodeData extends Record<string, unknown> {
-  status: 'idle' | 'processing' | 'done' | 'error';
+  status: NodeStatus;
   resultVideo: string | null;
   errorMessage: string | null;
-  provider: VideoProvider;
-  model: 'kling-v1' | 'kling-v1-6' | 'kling-v1-pro';
-  mode: 'reference' | 'starting-frame';
-  duration: number;
-  aspectRatio: '16:9' | '9:16' | '1:1';
-  negativePrompt: string;
-  resolution: '720p' | '1080p' | '4K';
+  modelId: string;
+  params: ParamValues;
+  progress?: string | null;
 }
 
-export type NodeData = PromptNodeData | ImageInputNodeData | PromptEngineerNodeData | ImageGenNodeData | VideoGenNodeData;
+export type NodeData =
+  | PromptNodeData
+  | ImageInputNodeData
+  | PromptEngineerNodeData
+  | ImageGenNodeData
+  | VideoGenNodeData;
 
 export interface ApiKeys {
+  fal?: string;
   gemini?: string;
   openai?: string;
   kling?: string;
+  modelark?: string;
 }

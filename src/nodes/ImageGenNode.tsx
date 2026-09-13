@@ -1,12 +1,15 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Handle, Position, useReactFlow, useEdges } from '@xyflow/react';
-import { ImageIcon, Sparkles, AlertCircle, Download, Loader2, Settings2, X, Maximize2 } from 'lucide-react';
-import type { ImageGenNodeData, PromptNodeData, PromptEngineerNodeData, ImageInputNodeData } from '../types';
-import { generateImageWithGemini } from '../api/gemini';
-import { generateImageWithOpenAI } from '../api/openai';
+import { ImageIcon, Sparkles, AlertCircle, Download, Loader2, Settings2, X, Maximize2, Square } from 'lucide-react';
+import type { ImageGenNodeData } from '../types';
+import { describeError, runImageModel } from '../api/run';
+import { resolveNodeInputs } from '../graph/resolve';
+import { PROVIDER_LABEL, resolveModel } from '../models';
 import { useSettingsPanel } from '../context/SettingsPanelContext';
 import { HANDLE_TEXT, HANDLE_IMAGE } from './handleStyles';
+import { IMAGE_IMAGE_HANDLES } from '../graph/handles';
+import { extensionFor, mimeTypeOf } from '../api/media';
 
 function ImageLightbox({
   src,
@@ -54,120 +57,62 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
   const { openSettings } = useSettingsPanel();
   const [isProcessing, setIsProcessing] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const getConnectedData = useCallback((): { prompt: string; images: string[] } | null => {
-    const textEdge = edges.find((e) => e.target === id && e.targetHandle === 'image-text-in');
-    const imageEdges = edges.filter((e) => e.target === id && e.targetHandle === 'image-image-in');
-
-    let prompt = '';
-    const images: string[] = [];
-
-    if (textEdge) {
-      const sourceNode = getNode(textEdge.source);
-      if (sourceNode) {
-        if (sourceNode.type === 'prompt') {
-          prompt = (sourceNode.data as PromptNodeData).prompt || '';
-        } else if (sourceNode.type === 'promptEngineer') {
-          prompt = (sourceNode.data as PromptEngineerNodeData).enhancedPrompt || '';
-        }
-      }
-    }
-
-    for (const edge of imageEdges) {
-      const sourceNode = getNode(edge.source);
-      if (!sourceNode) continue;
-      if (sourceNode.type === 'imageInput') {
-        images.push(...((sourceNode.data as ImageInputNodeData).images ?? []));
-      } else if (sourceNode.type === 'imageGen') {
-        images.push(...((sourceNode.data as ImageGenNodeData).resultImages ?? []));
-      }
-    }
-
-    if (!prompt.trim()) return null;
-    return { prompt, images };
-  }, [edges, getNode, id]);
+  const spec = useMemo(() => resolveModel(data.modelId, 'image'), [data.modelId]);
 
   const handleGenerate = useCallback(async () => {
-    const connected = getConnectedData();
-    if (!connected || !connected.prompt.trim()) {
-      updateNodeData(id, { ...data, status: 'error', errorMessage: 'Connect a Prompt or Prompt Engineer node first' });
-      return;
-    }
-    const provider = data.provider || 'gemini';
-    const apiKey = localStorage.getItem(provider === 'openai' ? 'Loom:api:openai' : 'Loom:api:gemini');
+    const { prompt, images } = resolveNodeInputs({
+      nodeId: id,
+      textHandle: 'image-text-in',
+      imageHandles: IMAGE_IMAGE_HANDLES,
+      edges,
+      getNode: (nodeId) => getNode(nodeId) as never,
+    });
 
-    if (!apiKey) {
-      const providerName = provider === 'openai' ? 'OpenAI' : 'Gemini';
-      updateNodeData(id, { ...data, status: 'error', errorMessage: `Set your ${providerName} API key in Settings` });
-      return;
-    }
-
-    const count = data.numberOfImages || 1;
+    const controller = new AbortController();
+    abortRef.current = controller;
     setIsProcessing(true);
-    updateNodeData(id, { ...data, status: 'processing', errorMessage: null, resultImages: [] });
+    updateNodeData(id, { status: 'processing', errorMessage: null, progress: 'Starting', resultImages: [] });
 
     try {
-      let results: string[] = [];
-
-      if (provider === 'openai') {
-        const images = await generateImageWithOpenAI(connected.prompt, connected.images, apiKey as string, {
-          model: data.model,
-          aspectRatio: data.aspectRatio,
-          negativePrompt: data.negativePrompt,
-          resolution: data.resolution,
-          numberOfImages: count,
-          quality: data.quality,
-          outputFormat: data.outputFormat,
-          outputCompression: data.outputCompression,
-          background: data.background,
-          inputFidelity: data.inputFidelity,
-          moderation: data.moderation,
-        });
-        results = images;
-      } else {
-        const promises: Promise<string>[] = [];
-        for (let i = 0; i < count; i++) {
-          promises.push(
-            generateImageWithGemini(connected.prompt, connected.images, apiKey as string, {
-              model: data.model,
-              aspectRatio: data.aspectRatio,
-              negativePrompt: data.negativePrompt,
-              resolution: data.resolution,
-            })
-          );
-        }
-        results = await Promise.all(promises);
-      }
-
-      updateNodeData(id, { ...data, status: 'done', resultImages: results, errorMessage: null });
-    } catch (err: any) {
-      updateNodeData(id, { ...data, status: 'error', errorMessage: err.message || 'Image generation failed' });
+      const result = await runImageModel(spec.id, {
+        prompt,
+        images,
+        values: data.params,
+        signal: controller.signal,
+        onProgress: (progress) => updateNodeData(id, { progress }),
+      });
+      updateNodeData(id, { status: 'done', resultImages: result.images, errorMessage: null, progress: null });
+    } catch (error) {
+      const message = describeError(error, 'Image generation failed');
+      updateNodeData(id, {
+        status: message === 'Cancelled' ? 'idle' : 'error',
+        errorMessage: message === 'Cancelled' ? null : message,
+        progress: null,
+      });
     } finally {
+      abortRef.current = null;
       setIsProcessing(false);
     }
-  }, [getConnectedData, id, data, updateNodeData]);
+  }, [edges, getNode, id, data.params, spec.id, updateNodeData]);
+
+  const handleCancel = useCallback(() => abortRef.current?.abort(), []);
 
   const downloadOne = useCallback((src: string, idx: number) => {
     const a = document.createElement('a');
     a.href = src;
-    a.download = `generated-image-${Date.now()}-${idx + 1}.png`;
+    a.download = `loom-image-${Date.now()}-${idx + 1}.${extensionFor(mimeTypeOf(src))}`;
     a.click();
   }, []);
 
   const downloadAll = useCallback(() => {
-    if (!data.resultImages?.length) return;
-    data.resultImages.forEach((img, idx) => {
-      setTimeout(() => {
-        const a = document.createElement('a');
-        a.href = img;
-        a.download = `generated-image-${Date.now()}-${idx + 1}.png`;
-        a.click();
-      }, idx * 300);
-    });
-  }, [data.resultImages]);
+    data.resultImages?.forEach((img, idx) => setTimeout(() => downloadOne(img, idx), idx * 300));
+  }, [data.resultImages, downloadOne]);
 
-  const statusLabel = data.status === 'idle' ? 'Ready' : data.status;
   const doneCount = data.resultImages?.length || 0;
+  const statusLabel =
+    data.status === 'processing' ? data.progress || 'Processing' : data.status === 'idle' ? 'Ready' : data.status;
 
   const statusDotColor =
     data.status === 'done' ? 'bg-primary shadow-[0_0_8px_var(--color-line-strong)]' :
@@ -187,7 +132,17 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
         <button onClick={() => openSettings(id)} className="ml-auto p-1 cursor-pointer text-muted hover:text-primary transition-colors">
           <Settings2 className="w-3.5 h-3.5" />
         </button>
-        <span className="text-[11px] text-muted uppercase font-mono tracking-wider">{data.provider === 'openai' ? 'OpenAI' : 'Gemini'}</span>
+        <span
+          className="flex items-center gap-1.5 min-w-0"
+          title={`${spec.label} — ${spec.vendor} via ${PROVIDER_LABEL[spec.provider]}`}
+        >
+          <span className="text-[11px] text-muted uppercase font-mono tracking-wider truncate max-w-[7.5rem]">
+            {spec.label}
+          </span>
+          <span className="shrink-0 px-1 py-px rounded text-[9px] font-mono tracking-wider text-muted border border-line-subtle">
+            {PROVIDER_LABEL[spec.provider]}
+          </span>
+        </span>
       </div>
 
       {/* Body */}
@@ -202,7 +157,7 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
         </div>
 
         {/* Results */}
-        {data.resultImages?.length > 0 && (
+        {doneCount > 0 && (
           <div className="space-y-2.5">
             {data.resultImages.map((img, idx) => (
               <div key={idx} className="relative group rounded-xl overflow-hidden border border-line-subtle hover:border-line transition-colors cursor-pointer">
@@ -212,7 +167,7 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
                   className="w-full object-contain"
                   onClick={() => setLightboxSrc(img)}
                 />
-                {data.resultImages.length > 1 && (
+                {doneCount > 1 && (
                   <span className="absolute top-2.5 left-2.5 px-1.5 py-0.5 rounded-lg glass-strong text-[11px] text-secondary pointer-events-none font-mono">
                     {idx + 1}
                   </span>
@@ -233,7 +188,7 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
                 </div>
               </div>
             ))}
-            {data.resultImages.length > 1 && (
+            {doneCount > 1 && (
               <button
                 onClick={downloadAll}
                 className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-full glass-button text-[12px]"
@@ -253,15 +208,22 @@ function ImageGenNode({ id, data }: { id: string; data: ImageGenNodeData }) {
         )}
 
         {/* Action button */}
-        <button
-          onClick={handleGenerate}
-          disabled={isProcessing}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full glass-button-primary text-[13px] font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
-        >
-          {isProcessing ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating...</>
-           : data.status === 'done' ? <><Sparkles className="w-3.5 h-3.5" /> Regenerate</>
-           : <><Sparkles className="w-3.5 h-3.5" /> Generate Image</>}
-        </button>
+        {isProcessing ? (
+          <button
+            onClick={handleCancel}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full glass-button text-[13px] font-medium cursor-pointer"
+          >
+            <Square className="w-3 h-3" /> Cancel
+          </button>
+        ) : (
+          <button
+            onClick={handleGenerate}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full glass-button-primary text-[13px] font-medium cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            {data.status === 'done' ? 'Regenerate' : 'Generate Image'}
+          </button>
+        )}
       </div>
 
       </div>

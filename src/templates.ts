@@ -1,13 +1,13 @@
 import type { Node, Edge } from '@xyflow/react';
 import { Layers, Clapperboard } from 'lucide-react';
-import type {
-  PromptNodeData,
-  ImageInputNodeData,
-  PromptEngineerNodeData,
-  ImageGenNodeData,
-  VideoGenNodeData,
-} from './types';
-import { DEFAULT_IMAGE_SYSTEM_PROMPT, DEFAULT_VIDEO_SYSTEM_PROMPT } from './api/gemini';
+import { VIDEO_IMAGE_HANDLES } from './graph/handles';
+import {
+  createImageGenData,
+  createImageInputData,
+  createPromptData,
+  createPromptEngineerData,
+  createVideoGenData,
+} from './nodes/defaults';
 
 export type TemplateHandleKind = 'text' | 'image';
 
@@ -33,48 +33,6 @@ export interface LoomTemplate extends TemplateMeta {
     nextId: () => string;
   }) => { nodes: Node[]; edges: Edge[] };
 }
-
-const defaultEngineer = (target: 'image' | 'video'): PromptEngineerNodeData => ({
-  status: 'idle',
-  targetMode: target,
-  rawPrompt: '',
-  enhancedPrompt: '',
-  errorMessage: null,
-  customSystemPromptImage: DEFAULT_IMAGE_SYSTEM_PROMPT,
-  customSystemPromptVideo: DEFAULT_VIDEO_SYSTEM_PROMPT,
-  referenceImages: [],
-});
-
-const defaultImageGen = (): ImageGenNodeData => ({
-  status: 'idle',
-  resultImages: [],
-  errorMessage: null,
-  provider: 'gemini',
-  model: 'gemini-3.1-flash-image-preview',
-  aspectRatio: '1:1',
-  negativePrompt: '',
-  resolution: '1K',
-  numberOfImages: 1,
-  quality: 'auto',
-  outputFormat: 'png',
-  outputCompression: 100,
-  background: 'auto',
-  inputFidelity: 'low',
-  moderation: 'auto',
-});
-
-const defaultVideoGen = (): VideoGenNodeData => ({
-  status: 'idle',
-  resultVideo: null,
-  errorMessage: null,
-  provider: 'kling',
-  model: 'kling-v1',
-  mode: 'starting-frame',
-  duration: 5,
-  aspectRatio: '16:9',
-  negativePrompt: '',
-  resolution: '720p',
-});
 
 export const TEMPLATES: LoomTemplate[] = [
   {
@@ -121,25 +79,25 @@ export const TEMPLATES: LoomTemplate[] = [
           id: promptId,
           type: 'prompt',
           position: { x: offsetX, y: offsetY },
-          data: { prompt: '' } as PromptNodeData,
+          data: createPromptData(),
         },
         {
           id: imageInputId,
           type: 'imageInput',
           position: { x: offsetX, y: offsetY + 320 },
-          data: { images: [] } as ImageInputNodeData,
+          data: createImageInputData(),
         },
         {
           id: engineerId,
           type: 'promptEngineer',
           position: { x: offsetX + 460, y: offsetY + 140 },
-          data: defaultEngineer('image'),
+          data: createPromptEngineerData('image'),
         },
         {
           id: imageGenId,
           type: 'imageGen',
           position: { x: offsetX + 980, y: offsetY + 140 },
-          data: defaultImageGen(),
+          data: createImageGenData(),
         },
       ];
 
@@ -250,43 +208,43 @@ export const TEMPLATES: LoomTemplate[] = [
           id: prompt1Id,
           type: 'prompt',
           position: { x: offsetX, y: offsetY },
-          data: { prompt: '' } as PromptNodeData,
+          data: createPromptData(),
         },
         {
           id: imageInputId,
           type: 'imageInput',
           position: { x: offsetX, y: offsetY + 320 },
-          data: { images: [] } as ImageInputNodeData,
+          data: createImageInputData(),
         },
         {
           id: engImageId,
           type: 'promptEngineer',
           position: { x: offsetX + 460, y: offsetY + 140 },
-          data: defaultEngineer('image'),
+          data: createPromptEngineerData('image'),
         },
         {
           id: imageGenId,
           type: 'imageGen',
           position: { x: offsetX + 980, y: offsetY + 320 },
-          data: defaultImageGen(),
+          data: createImageGenData(),
         },
         {
           id: prompt2Id,
           type: 'prompt',
           position: { x: offsetX + 980, y: offsetY + 10 },
-          data: { prompt: '' } as PromptNodeData,
+          data: createPromptData(),
         },
         {
           id: engVideoId,
           type: 'promptEngineer',
           position: { x: offsetX + 1440, y: offsetY + 140 },
-          data: defaultEngineer('video'),
+          data: createPromptEngineerData('video'),
         },
         {
           id: videoGenId,
           type: 'videoGen',
           position: { x: offsetX + 1900, y: offsetY + 140 },
-          data: defaultVideoGen(),
+          data: createVideoGenData(),
         },
       ];
 
@@ -351,7 +309,7 @@ export const TEMPLATES: LoomTemplate[] = [
           source: imageGenId,
           sourceHandle: 'image-out',
           target: videoGenId,
-          targetHandle: 'video-image-in',
+          targetHandle: VIDEO_IMAGE_HANDLES.start,
           type: 'cable',
         },
         // engineer (video) → video gen

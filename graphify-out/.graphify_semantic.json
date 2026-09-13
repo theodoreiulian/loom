@@ -1,0 +1,127 @@
+{
+  "nodes": [
+    {
+      "id": "readme",
+      "label": "Loom README",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": null
+    },
+    {
+      "id": "gemini_md",
+      "label": "Loom Project Context (Gemini)",
+      "file_type": "document",
+      "source_file": "GEMINI.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": null
+    },
+    {
+      "id": "src_api",
+      "label": "API Layer",
+      "file_type": "code",
+      "source_file": "src/api/index.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": null
+    },
+    {
+      "id": "xyflow",
+      "label": "XYFlow (React Flow)",
+      "file_type": "concept",
+      "source_file": null,
+      "source_location": null,
+      "source_url": "https://xyflow.com/",
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": null
+    },
+    {
+      "id": "public_favicon",
+      "label": "Loom Favicon",
+      "file_type": "image",
+      "source_file": "public/favicon.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": null
+    },
+    {
+      "id": "src_assets_logo",
+      "label": "Loom Logo",
+      "file_type": "image",
+      "source_file": "src/assets/logo.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": null
+    },
+    {
+      "id": "src_assets_sublogo",
+      "label": "Loom Sub-logo",
+      "file_type": "image",
+      "source_file": "src/assets/sublogo.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": null
+    },
+    {
+      "id": "index_html",
+      "label": "Index HTML",
+      "file_type": "code",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "readme",
+      "target": "src_assets_logo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md"
+    },
+    {
+      "source": "index_html",
+      "target": "public_favicon",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html"
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 7735,
+  "output_tokens": 1724,
+  "failed_chunks": 0,
+  "out_of_scope_dropped": 8,
+  "uncovered_files": [
+    "/Users/theodore/conductor/workspaces/loom/bratislava/AGENTS.md",
+    "/Users/theodore/conductor/workspaces/loom/bratislava/CLAUDE.md"
+  ]
+}

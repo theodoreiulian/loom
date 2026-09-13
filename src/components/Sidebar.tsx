@@ -74,8 +74,8 @@ function createDragPreview(type: string, label: string) {
     prompt: 'Input',
     imageInput: 'Input',
     promptEngineer: 'Gemini',
-    imageGen: 'AI',
-    videoGen: 'Kling',
+    imageGen: 'Image',
+    videoGen: 'Video',
   };
   badge.textContent = badges[type] || 'Input';
   badge.style.marginLeft = 'auto';

@@ -1,0 +1,272 @@
+{
+  "/Users/theodore/conductor/workspaces/loom/bratislava/eslint.config.js": {
+    "mtime": 1789226334.9171395,
+    "seen": 1789226643.6575968,
+    "ast_hash": "0355276bc79439afe3c53e3a2470ca1e",
+    "semantic_hash": "0355276bc79439afe3c53e3a2470ca1e"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/package.json": {
+    "mtime": 1789226334.91783,
+    "seen": 1789226643.6576,
+    "ast_hash": "10fb8b9405b704304b2c8426ea788d31",
+    "semantic_hash": "10fb8b9405b704304b2c8426ea788d31"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/App.tsx": {
+    "mtime": 1789226334.9185402,
+    "seen": 1789226643.657601,
+    "ast_hash": "2667a20e7388f0dec915e84d2bbc41a3",
+    "semantic_hash": "2667a20e7388f0dec915e84d2bbc41a3"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/api/gemini.ts": {
+    "mtime": 1789226334.9187655,
+    "seen": 1789226643.657602,
+    "ast_hash": "7b6564b1d512345cba14fea5c2973ac6",
+    "semantic_hash": "7b6564b1d512345cba14fea5c2973ac6"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/api/kling.ts": {
+    "mtime": 1789226334.918906,
+    "seen": 1789226643.657603,
+    "ast_hash": "cb515923bc7e89f758222dffe0388d7c",
+    "semantic_hash": "cb515923bc7e89f758222dffe0388d7c"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/api/openai.ts": {
+    "mtime": 1789226334.9190311,
+    "seen": 1789226643.657604,
+    "ast_hash": "10ec1f27086db3e4cb8811f76d2cbd5f",
+    "semantic_hash": "10ec1f27086db3e4cb8811f76d2cbd5f"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/api/veo.ts": {
+    "mtime": 1789226334.919129,
+    "seen": 1789226643.6576052,
+    "ast_hash": "24a86f8d6e5338f57fcee78db79f8645",
+    "semantic_hash": "24a86f8d6e5338f57fcee78db79f8645"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/components/ApiKeyModal.tsx": {
+    "mtime": 1789226334.9198349,
+    "seen": 1789226643.6576052,
+    "ast_hash": "a1cb1bb46489c902808eb55606192ca2",
+    "semantic_hash": "a1cb1bb46489c902808eb55606192ca2"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/components/ConfirmDialog.tsx": {
+    "mtime": 1789226334.9199424,
+    "seen": 1789226643.657606,
+    "ast_hash": "2c623ef78202f6267fbdb8639b15f55e",
+    "semantic_hash": "2c623ef78202f6267fbdb8639b15f55e"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/components/EdgeContextMenu.tsx": {
+    "mtime": 1789226334.9200234,
+    "seen": 1789226643.6576068,
+    "ast_hash": "289925a0a134e6b654f17fdd3cebb565",
+    "semantic_hash": "289925a0a134e6b654f17fdd3cebb565"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/components/EmptyState.tsx": {
+    "mtime": 1789226334.9201596,
+    "seen": 1789226643.657608,
+    "ast_hash": "456d10382017ee3deb9f2bc1a5cc298e",
+    "semantic_hash": "456d10382017ee3deb9f2bc1a5cc298e"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/components/Header.tsx": {
+    "mtime": 1789226334.9203105,
+    "seen": 1789226643.657608,
+    "ast_hash": "c0322c657ed5896242d752483a5412e7",
+    "semantic_hash": "c0322c657ed5896242d752483a5412e7"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/components/NodeSettingsPanel.tsx": {
+    "mtime": 1789226334.9204679,
+    "seen": 1789226643.657611,
+    "ast_hash": "fe723ae74de00ce5e89a1928ac88b338",
+    "semantic_hash": "fe723ae74de00ce5e89a1928ac88b338"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/components/ProjectDashboard.tsx": {
+    "mtime": 1789226334.9206312,
+    "seen": 1789226643.657612,
+    "ast_hash": "705410de9d144421aa6f85234407e0dd",
+    "semantic_hash": "705410de9d144421aa6f85234407e0dd"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/components/Sidebar.tsx": {
+    "mtime": 1789226334.9207704,
+    "seen": 1789226643.657613,
+    "ast_hash": "d977e402c19d429b2d0cd7c96a58c715",
+    "semantic_hash": "d977e402c19d429b2d0cd7c96a58c715"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/context/ProjectContext.tsx": {
+    "mtime": 1789226334.9209077,
+    "seen": 1789226643.657614,
+    "ast_hash": "99e1ef2125efdb557ae8016223af33a3",
+    "semantic_hash": "99e1ef2125efdb557ae8016223af33a3"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/context/SettingsPanelContext.tsx": {
+    "mtime": 1789226334.9209983,
+    "seen": 1789226643.657614,
+    "ast_hash": "819c54e7e610a4a6c4f3f4be133c40db",
+    "semantic_hash": "819c54e7e610a4a6c4f3f4be133c40db"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/context/ThemeContext.tsx": {
+    "mtime": 1789226334.9210854,
+    "seen": 1789226643.6576152,
+    "ast_hash": "2b0157efbc2ac8aa07c460c518defcd4",
+    "semantic_hash": "2b0157efbc2ac8aa07c460c518defcd4"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/edges/CableEdge.tsx": {
+    "mtime": 1789226334.9212186,
+    "seen": 1789226643.657616,
+    "ast_hash": "69848e84fb3ad8ed6015bb67614df260",
+    "semantic_hash": "69848e84fb3ad8ed6015bb67614df260"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/edges/index.ts": {
+    "mtime": 1789226334.9212942,
+    "seen": 1789226643.6576169,
+    "ast_hash": "65ef21db28e55a0efd80dfa230ed4a63",
+    "semantic_hash": "65ef21db28e55a0efd80dfa230ed4a63"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/hooks/useExitAnimation.ts": {
+    "mtime": 1789226334.9214299,
+    "seen": 1789226643.6576169,
+    "ast_hash": "6096b1a70817d3134d44be6c3c7078ac",
+    "semantic_hash": "6096b1a70817d3134d44be6c3c7078ac"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/hooks/usePreventCanvasZoom.ts": {
+    "mtime": 1789226334.9215102,
+    "seen": 1789226643.6576178,
+    "ast_hash": "ebe623e6027d02c8f3fce20a6be26554",
+    "semantic_hash": "ebe623e6027d02c8f3fce20a6be26554"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/main.tsx": {
+    "mtime": 1789226334.9217162,
+    "seen": 1789226643.657619,
+    "ast_hash": "787e5a07efeb2bf6209d5937195f2f68",
+    "semantic_hash": "787e5a07efeb2bf6209d5937195f2f68"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/nodes/ImageGenNode.tsx": {
+    "mtime": 1789226334.9219415,
+    "seen": 1789226643.65762,
+    "ast_hash": "868287e09e0a93f0614f6b9a64e36907",
+    "semantic_hash": "868287e09e0a93f0614f6b9a64e36907"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/nodes/ImageInputNode.tsx": {
+    "mtime": 1789226334.922078,
+    "seen": 1789226643.65762,
+    "ast_hash": "6ea388918c6b94dabebd44e61181bc64",
+    "semantic_hash": "6ea388918c6b94dabebd44e61181bc64"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/nodes/PromptEngineerNode.tsx": {
+    "mtime": 1789226334.9222527,
+    "seen": 1789226643.657621,
+    "ast_hash": "78b18f3902fa66ee4e36563b7e9b41c7",
+    "semantic_hash": "78b18f3902fa66ee4e36563b7e9b41c7"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/nodes/PromptNode.tsx": {
+    "mtime": 1789226334.9223344,
+    "seen": 1789226643.657622,
+    "ast_hash": "3a2ae95d8498c87c1e8ac5a3a5ddf548",
+    "semantic_hash": "3a2ae95d8498c87c1e8ac5a3a5ddf548"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/nodes/VideoGenNode.tsx": {
+    "mtime": 1789226334.9224837,
+    "seen": 1789226643.657623,
+    "ast_hash": "cb1f7f30da34bcaa8af32a44096596ea",
+    "semantic_hash": "cb1f7f30da34bcaa8af32a44096596ea"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/nodes/handleStyles.ts": {
+    "mtime": 1789226334.9226134,
+    "seen": 1789226643.657623,
+    "ast_hash": "ca5e8e3d1632c2b021d6e634263d1ce8",
+    "semantic_hash": "ca5e8e3d1632c2b021d6e634263d1ce8"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/nodes/index.ts": {
+    "mtime": 1789226334.922694,
+    "seen": 1789226643.657624,
+    "ast_hash": "339f38f4ca23af79004e762e3231d9ee",
+    "semantic_hash": "339f38f4ca23af79004e762e3231d9ee"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/store/projectStore.ts": {
+    "mtime": 1789226334.9228654,
+    "seen": 1789226643.6576252,
+    "ast_hash": "e665d8cab2b4344399d49b3cea325ab5",
+    "semantic_hash": "e665d8cab2b4344399d49b3cea325ab5"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/templates.ts": {
+    "mtime": 1789226334.9230533,
+    "seen": 1789226643.6576278,
+    "ast_hash": "89280a26cf54499dd895655645063487",
+    "semantic_hash": "89280a26cf54499dd895655645063487"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/types.ts": {
+    "mtime": 1789226334.9232478,
+    "seen": 1789226643.657629,
+    "ast_hash": "1cf130e2c439080c1b79920697b64115",
+    "semantic_hash": "1cf130e2c439080c1b79920697b64115"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/tsconfig.app.json": {
+    "mtime": 1789226334.9233499,
+    "seen": 1789226643.65763,
+    "ast_hash": "136630b5accce1ca50663df229534a26",
+    "semantic_hash": "136630b5accce1ca50663df229534a26"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/tsconfig.json": {
+    "mtime": 1789226334.9234278,
+    "seen": 1789226643.657631,
+    "ast_hash": "a3d39fa780ebff65444de257f291ce6c",
+    "semantic_hash": "a3d39fa780ebff65444de257f291ce6c"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/tsconfig.node.json": {
+    "mtime": 1789226334.9235137,
+    "seen": 1789226643.657631,
+    "ast_hash": "70bdd0a673bcfc0e828080b306e7c680",
+    "semantic_hash": "70bdd0a673bcfc0e828080b306e7c680"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/vite.config.ts": {
+    "mtime": 1789226334.9236012,
+    "seen": 1789226643.657632,
+    "ast_hash": "542b3d62b640678dfde772b86c86b807",
+    "semantic_hash": "542b3d62b640678dfde772b86c86b807"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/AGENTS.md": {
+    "mtime": 1789226334.9165583,
+    "seen": 1789226643.657633,
+    "ast_hash": "9fcc73383d830fc47adf79d16c162dc7",
+    "semantic_hash": "9fcc73383d830fc47adf79d16c162dc7"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/CLAUDE.md": {
+    "mtime": 1789226334.916654,
+    "seen": 1789226643.657634,
+    "ast_hash": "9fcc73383d830fc47adf79d16c162dc7",
+    "semantic_hash": "9fcc73383d830fc47adf79d16c162dc7"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/GEMINI.md": {
+    "mtime": 1789226334.9168007,
+    "seen": 1789226643.657634,
+    "ast_hash": "9fcc73383d830fc47adf79d16c162dc7",
+    "semantic_hash": "9fcc73383d830fc47adf79d16c162dc7"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/README.md": {
+    "mtime": 1789226334.9170501,
+    "seen": 1789226643.657635,
+    "ast_hash": "72e56998a53f080c7efcadc03d2bb749",
+    "semantic_hash": "72e56998a53f080c7efcadc03d2bb749"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/index.html": {
+    "mtime": 1789226334.9172504,
+    "seen": 1789226643.6576362,
+    "ast_hash": "7e5cf122a03aeabb768b1db7843f3fe9",
+    "semantic_hash": "7e5cf122a03aeabb768b1db7843f3fe9"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/public/favicon.png": {
+    "mtime": 1789226334.9182653,
+    "seen": 1789226643.6576371,
+    "ast_hash": "c9df02df6ea1e42ec8043fc601cabc5c",
+    "semantic_hash": "c9df02df6ea1e42ec8043fc601cabc5c"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/assets/logo.png": {
+    "mtime": 1789226334.91941,
+    "seen": 1789226643.6576378,
+    "ast_hash": "0734ad8e048a2599a05e7aff4209fe0f",
+    "semantic_hash": "0734ad8e048a2599a05e7aff4209fe0f"
+  },
+  "/Users/theodore/conductor/workspaces/loom/bratislava/src/assets/sublogo.png": {
+    "mtime": 1789226334.9196124,
+    "seen": 1789226643.6576378,
+    "ast_hash": "539d6028f1604e5c83a0e662f69f7b3b",
+    "semantic_hash": "539d6028f1604e5c83a0e662f69f7b3b"
+  }
+}

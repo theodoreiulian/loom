@@ -1,8 +1,10 @@
 import { memo, useCallback, useState } from 'react';
 import { Handle, Position, useReactFlow, useEdges } from '@xyflow/react';
 import { Wand2, ImageIcon, Film, AlertCircle, Loader2, Copy, Check, Settings2 } from 'lucide-react';
-import type { PromptEngineerNodeData, PromptNodeData, ImageInputNodeData, ImageGenNodeData } from '../types';
-import { enhancePromptWithGemini } from '../api/gemini';
+import type { PromptEngineerNodeData } from '../types';
+import { DEFAULT_PROMPT_ENGINEER_MODEL, enhancePromptWithGemini } from '../api/gemini';
+import { getApiKey, providerKeyInfo } from '../api/keys';
+import { resolveNodeInputs } from '../graph/resolve';
 import { useSettingsPanel } from '../context/SettingsPanelContext';
 import { usePreventCanvasZoom } from '../hooks/usePreventCanvasZoom';
 import { HANDLE_TEXT, HANDLE_IMAGE } from './handleStyles';
@@ -15,32 +17,15 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
   const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const getConnectedData = useCallback((): { prompt: string; images: string[] } | null => {
-    const textEdge = edges.find((e) => e.target === id && e.targetHandle === 'engineer-text-in');
-    const imageEdges = edges.filter((e) => e.target === id && e.targetHandle === 'engineer-image-in');
-
-    let prompt = '';
-    const images: string[] = [];
-
-    if (textEdge) {
-      const sourceNode = getNode(textEdge.source);
-      if (sourceNode && sourceNode.type === 'prompt') {
-        prompt = (sourceNode.data as PromptNodeData).prompt || '';
-      }
-    }
-
-    for (const edge of imageEdges) {
-      const sourceNode = getNode(edge.source);
-      if (!sourceNode) continue;
-      if (sourceNode.type === 'imageInput') {
-        images.push(...((sourceNode.data as ImageInputNodeData).images ?? []));
-      } else if (sourceNode.type === 'imageGen') {
-        images.push(...((sourceNode.data as ImageGenNodeData).resultImages ?? []));
-      }
-    }
-
-    if (!prompt.trim()) return null;
-    return { prompt, images };
+  const getConnectedData = useCallback(() => {
+    const { prompt, images } = resolveNodeInputs({
+      nodeId: id,
+      textHandle: 'engineer-text-in',
+      imageHandles: { reference: 'engineer-image-in' },
+      edges,
+      getNode: (nodeId) => getNode(nodeId) as never,
+    });
+    return prompt ? { prompt, images: images.references } : null;
   }, [edges, getNode, id]);
 
   const handleEnhance = useCallback(async () => {
@@ -49,16 +34,20 @@ function PromptEngineerNode({ id, data }: { id: string; data: PromptEngineerNode
       updateNodeData(id, { ...data, status: 'error', errorMessage: 'Connect a Prompt node with text first' });
       return;
     }
-    const apiKey = localStorage.getItem('Loom:api:gemini');
+    const apiKey = getApiKey('google');
     if (!apiKey) {
-      updateNodeData(id, { ...data, status: 'error', errorMessage: 'Set your Gemini API key in Settings' });
+      updateNodeData(id, {
+        ...data,
+        status: 'error',
+        errorMessage: `Add your ${providerKeyInfo('google').label} API key in Settings to enhance prompts.`,
+      });
       return;
     }
     setIsProcessing(true);
     updateNodeData(id, { ...data, status: 'processing', rawPrompt: connected.prompt, errorMessage: null, referenceImages: connected.images });
     try {
       const customPrompt = data.targetMode === 'image' ? data.customSystemPromptImage : data.customSystemPromptVideo;
-      const model = data.model || 'gemini-3-flash-preview';
+      const model = data.model || DEFAULT_PROMPT_ENGINEER_MODEL;
       const enhanced = await enhancePromptWithGemini(connected.prompt, data.targetMode || 'image', apiKey, customPrompt, connected.images, model);
       updateNodeData(id, { ...data, status: 'done', rawPrompt: connected.prompt, enhancedPrompt: enhanced, errorMessage: null, referenceImages: connected.images });
     } catch (err: any) {

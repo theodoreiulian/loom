@@ -1,0 +1,443 @@
+{
+  "communities": {
+    "0": [
+      "ref_lucide_react",
+      "ref_react_dom",
+      "ref_xyflow_react",
+      "src_api_gemini_enhancepromptwithgemini",
+      "src_api_gemini_generateimagewithgemini",
+      "src_api_openai",
+      "src_api_openai_dataurltoblob",
+      "src_api_openai_generateimagewithopenai",
+      "src_api_openai_getopenaisize",
+      "src_api_veo",
+      "src_api_veo_generatevideowithveo",
+      "src_api_veo_pollveooperation",
+      "src_components_nodesettingspanel",
+      "src_components_nodesettingspanel_imagegensettings",
+      "src_components_nodesettingspanel_nodesettingspanel",
+      "src_components_nodesettingspanel_promptengineersettings",
+      "src_components_nodesettingspanel_videogensettings",
+      "src_context_settingspanelcontext",
+      "src_context_settingspanelcontext_settingspanelcontext",
+      "src_context_settingspanelcontext_settingspanelcontextvalue",
+      "src_context_settingspanelcontext_settingspanelprovider",
+      "src_context_settingspanelcontext_usesettingspanel",
+      "src_hooks_usepreventcanvaszoom",
+      "src_hooks_usepreventcanvaszoom_usepreventcanvaszoom",
+      "src_nodes_handlestyles",
+      "src_nodes_handlestyles_handle_image",
+      "src_nodes_handlestyles_handle_text",
+      "src_nodes_imagegennode",
+      "src_nodes_imagegennode_imagegennode",
+      "src_nodes_imagegennode_imagelightbox",
+      "src_nodes_imageinputnode",
+      "src_nodes_imageinputnode_imageinputnode",
+      "src_nodes_index",
+      "src_nodes_index_nodetypes",
+      "src_nodes_promptengineernode",
+      "src_nodes_promptengineernode_promptengineernode",
+      "src_nodes_promptnode",
+      "src_nodes_promptnode_promptnode",
+      "src_nodes_videogennode",
+      "src_nodes_videogennode_videogennode",
+      "src_types",
+      "src_types_apikeys",
+      "src_types_imagegennodedata",
+      "src_types_imagegenprovider",
+      "src_types_imageinputnodedata",
+      "src_types_promptengineernodedata",
+      "src_types_promptnodedata",
+      "src_types_videogennodedata",
+      "src_types_videoprovider"
+    ],
+    "1": [
+      "src_app",
+      "src_app_app",
+      "src_app_flow",
+      "src_app_getid",
+      "src_app_handle_kind",
+      "src_app_handlekind",
+      "src_app_isvalidconnection",
+      "src_app_maincontent",
+      "src_assets_sublogo",
+      "src_components_header",
+      "src_components_header_header",
+      "src_components_header_headerprops",
+      "src_components_projectdashboard",
+      "src_components_projectdashboard_projectdashboard",
+      "src_context_projectcontext",
+      "src_context_projectcontext_projectcontext",
+      "src_context_projectcontext_projectcontexttype",
+      "src_context_projectcontext_projectprovider",
+      "src_context_projectcontext_useproject",
+      "src_context_themecontext",
+      "src_context_themecontext_readinitialtheme",
+      "src_context_themecontext_theme",
+      "src_context_themecontext_themecontext",
+      "src_context_themecontext_themecontextvalue",
+      "src_context_themecontext_themeprovider",
+      "src_context_themecontext_usetheme",
+      "src_main",
+      "src_store_projectstore",
+      "src_store_projectstore_createproject",
+      "src_store_projectstore_del",
+      "src_store_projectstore_deleteproject",
+      "src_store_projectstore_duplicateproject",
+      "src_store_projectstore_get",
+      "src_store_projectstore_getdb",
+      "src_store_projectstore_getprojectdata",
+      "src_store_projectstore_getprojects",
+      "src_store_projectstore_projectdata",
+      "src_store_projectstore_projectinfo",
+      "src_store_projectstore_saveprojectdata",
+      "src_store_projectstore_saveprojectslist",
+      "src_store_projectstore_set",
+      "src_store_projectstore_updateprojectname",
+      "src_types_nodedata"
+    ],
+    "2": [
+      "eslint_config",
+      "package",
+      "package_author",
+      "package_description",
+      "package_keywords",
+      "package_license",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_preview",
+      "package_type",
+      "package_version",
+      "ref_clsx",
+      "ref_eslint",
+      "ref_eslint_js",
+      "ref_eslint_plugin_react_hooks",
+      "ref_eslint_plugin_react_refresh",
+      "ref_globals",
+      "ref_tailwindcss",
+      "ref_tailwindcss_vite",
+      "ref_types_node",
+      "ref_types_react",
+      "ref_types_react_dom",
+      "ref_typescript",
+      "ref_typescript_eslint",
+      "ref_vite",
+      "ref_vitejs_plugin_react",
+      "vite_config"
+    ],
+    "3": [
+      "src_api_gemini",
+      "src_api_gemini_default_image_system_prompt",
+      "src_api_gemini_default_video_system_prompt",
+      "src_components_sidebar",
+      "src_components_sidebar_createdragpreview",
+      "src_components_sidebar_createtemplatedragpreview",
+      "src_components_sidebar_islighttheme",
+      "src_components_sidebar_node_widths",
+      "src_components_sidebar_nodetypes",
+      "src_components_sidebar_sidebar",
+      "src_components_sidebar_sidebarprops",
+      "src_templates",
+      "src_templates_defaultengineer",
+      "src_templates_defaultimagegen",
+      "src_templates_defaultvideogen",
+      "src_templates_loomtemplate",
+      "src_templates_templatehandlekind",
+      "src_templates_templatemeta",
+      "src_templates_templatepreviewspec",
+      "src_templates_templates"
+    ],
+    "4": [
+      "tsconfig_app",
+      "tsconfig_app_compileroptions",
+      "tsconfig_app_compileroptions_allowimportingtsextensions",
+      "tsconfig_app_compileroptions_erasablesyntaxonly",
+      "tsconfig_app_compileroptions_jsx",
+      "tsconfig_app_compileroptions_lib",
+      "tsconfig_app_compileroptions_module",
+      "tsconfig_app_compileroptions_moduledetection",
+      "tsconfig_app_compileroptions_moduleresolution",
+      "tsconfig_app_compileroptions_noemit",
+      "tsconfig_app_compileroptions_nofallthroughcasesinswitch",
+      "tsconfig_app_compileroptions_nounusedlocals",
+      "tsconfig_app_compileroptions_nounusedparameters",
+      "tsconfig_app_compileroptions_skiplibcheck",
+      "tsconfig_app_compileroptions_target",
+      "tsconfig_app_compileroptions_tsbuildinfofile",
+      "tsconfig_app_compileroptions_types",
+      "tsconfig_app_compileroptions_verbatimmodulesyntax",
+      "tsconfig_app_include"
+    ],
+    "5": [
+      "ref_react",
+      "src_components_apikeymodal",
+      "src_components_apikeymodal_apikeymodal",
+      "src_components_apikeymodal_apikeymodalprops",
+      "src_components_apikeymodal_providerguide",
+      "src_components_confirmdialog",
+      "src_components_confirmdialog_confirmdialog",
+      "src_components_confirmdialog_confirmdialogprops",
+      "src_components_edgecontextmenu",
+      "src_components_edgecontextmenu_edgecontextmenu",
+      "src_components_edgecontextmenu_edgecontextmenuprops",
+      "src_edges_cableedge",
+      "src_edges_cableedge_cableedge",
+      "src_edges_index",
+      "src_edges_index_edgetypes",
+      "src_hooks_useexitanimation",
+      "src_hooks_useexitanimation_animationphase",
+      "src_hooks_useexitanimation_useexitanimation"
+    ],
+    "6": [
+      "tsconfig_node",
+      "tsconfig_node_compileroptions",
+      "tsconfig_node_compileroptions_allowimportingtsextensions",
+      "tsconfig_node_compileroptions_erasablesyntaxonly",
+      "tsconfig_node_compileroptions_lib",
+      "tsconfig_node_compileroptions_module",
+      "tsconfig_node_compileroptions_moduledetection",
+      "tsconfig_node_compileroptions_moduleresolution",
+      "tsconfig_node_compileroptions_noemit",
+      "tsconfig_node_compileroptions_nofallthroughcasesinswitch",
+      "tsconfig_node_compileroptions_nounusedlocals",
+      "tsconfig_node_compileroptions_nounusedparameters",
+      "tsconfig_node_compileroptions_skiplibcheck",
+      "tsconfig_node_compileroptions_target",
+      "tsconfig_node_compileroptions_tsbuildinfofile",
+      "tsconfig_node_compileroptions_types",
+      "tsconfig_node_compileroptions_verbatimmodulesyntax",
+      "tsconfig_node_include"
+    ],
+    "7": [
+      "package_devdependencies",
+      "package_devdependencies_eslint",
+      "package_devdependencies_eslint_js",
+      "package_devdependencies_eslint_plugin_react_hooks",
+      "package_devdependencies_eslint_plugin_react_refresh",
+      "package_devdependencies_globals",
+      "package_devdependencies_types_node",
+      "package_devdependencies_types_react",
+      "package_devdependencies_types_react_dom",
+      "package_devdependencies_typescript",
+      "package_devdependencies_typescript_eslint",
+      "package_devdependencies_vite",
+      "package_devdependencies_vitejs_plugin_react"
+    ],
+    "8": [
+      "package_dependencies",
+      "package_dependencies_clsx",
+      "package_dependencies_lucide_react",
+      "package_dependencies_react",
+      "package_dependencies_react_dom",
+      "package_dependencies_tailwindcss",
+      "package_dependencies_tailwindcss_vite",
+      "package_dependencies_xyflow_react"
+    ],
+    "9": [
+      "src_api_kling",
+      "src_api_kling_generateklingtoken",
+      "src_api_kling_generatevideowithkling",
+      "src_api_kling_klingtaskresponse",
+      "src_api_kling_klingtaskresult",
+      "src_api_kling_parseklingkey",
+      "src_api_kling_pollklingtask"
+    ],
+    "10": [
+      "src_components_emptystate",
+      "src_components_emptystate_emptystate",
+      "src_components_emptystate_emptystateprops",
+      "src_components_emptystate_nodebuttons"
+    ],
+    "11": [
+      "tsconfig",
+      "tsconfig_files",
+      "tsconfig_references"
+    ],
+    "12": [
+      "index_html",
+      "public_favicon"
+    ],
+    "13": [
+      "readme",
+      "src_assets_logo"
+    ],
+    "14": [
+      "gemini_md"
+    ],
+    "15": [
+      "src_api"
+    ],
+    "16": [
+      "xyflow"
+    ]
+  },
+  "cohesion": {
+    "0": 0.1054421768707483,
+    "1": 0.1273532668881506,
+    "2": 0.07741935483870968,
+    "3": 0.14736842105263157,
+    "4": 0.10526315789473684,
+    "5": 0.1568627450980392,
+    "6": 0.1111111111111111,
+    "7": 0.15384615384615385,
+    "8": 0.25,
+    "9": 0.47619047619047616,
+    "10": 0.5,
+    "11": 0.6666666666666666,
+    "12": 1.0,
+    "13": 1.0,
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0
+  },
+  "gods": [
+    {
+      "id": "ref_react",
+      "label": "react",
+      "degree": 19
+    },
+    {
+      "id": "tsconfig_app_compileroptions",
+      "label": "compilerOptions",
+      "degree": 17
+    },
+    {
+      "id": "tsconfig_node_compileroptions",
+      "label": "compilerOptions",
+      "degree": 16
+    },
+    {
+      "id": "ref_lucide_react",
+      "label": "lucide-react",
+      "degree": 15
+    },
+    {
+      "id": "ref_xyflow_react",
+      "label": "@xyflow/react",
+      "degree": 11
+    },
+    {
+      "id": "src_store_projectstore_getprojects",
+      "label": "getProjects()",
+      "degree": 11
+    },
+    {
+      "id": "src_components_projectdashboard_projectdashboard",
+      "label": "ProjectDashboard()",
+      "degree": 9
+    },
+    {
+      "id": "src_context_settingspanelcontext_usesettingspanel",
+      "label": "useSettingsPanel()",
+      "degree": 9
+    },
+    {
+      "id": "src_hooks_usepreventcanvaszoom_usepreventcanvaszoom",
+      "label": "usePreventCanvasZoom()",
+      "degree": 9
+    },
+    {
+      "id": "src_store_projectstore_createproject",
+      "label": "createProject()",
+      "degree": 9
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Loom README",
+      "target": "Loom Logo",
+      "source_files": [
+        "README.md",
+        "src/assets/logo.png"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (doc ↔ image); connects across different repos/directories"
+    },
+    {
+      "source": "Index HTML",
+      "target": "Loom Favicon",
+      "source_files": [
+        "index.html",
+        "public/favicon.png"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (image ↔ doc); connects across different repos/directories"
+    },
+    {
+      "source": "VideoGenNode()",
+      "target": "generateVideoWithKling()",
+      "source_files": [
+        "src/nodes/VideoGenNode.tsx",
+        "src/api/kling.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "ApiKeyModal()",
+      "target": "usePreventCanvasZoom()",
+      "source_files": [
+        "src/components/ApiKeyModal.tsx",
+        "src/hooks/usePreventCanvasZoom.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "ImageGenSettings()",
+      "target": "usePreventCanvasZoom()",
+      "source_files": [
+        "src/components/NodeSettingsPanel.tsx",
+        "src/hooks/usePreventCanvasZoom.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "peripheral node `ImageGenSettings()` unexpectedly reaches hub `usePreventCanvasZoom()`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `react` connect `Community 5` to `Community 0`, `Community 1`, `Community 2`?",
+      "why": "High betweenness centrality (0.129) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `lucide-react` connect `Community 0` to `Community 1`, `Community 2`, `Community 3`, `Community 5`, `Community 10`?",
+      "why": "High betweenness centrality (0.103) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `@xyflow/react` connect `Community 0` to `Community 1`, `Community 2`, `Community 3`, `Community 5`?",
+      "why": "High betweenness centrality (0.090) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `name`, `description`, `version` to the rest of the system?",
+      "why": "104 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1054421768707483 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1273532668881506 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 2` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.07741935483870968 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

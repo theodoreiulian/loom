@@ -1,92 +1,90 @@
-import { memo, useCallback, useState } from 'react';
-import { Handle, Position, useReactFlow, useEdges } from '@xyflow/react';
-import { Film, Sparkles, AlertCircle, Download, Loader2, Settings2 } from 'lucide-react';
-import type { VideoGenNodeData, PromptNodeData, ImageGenNodeData, PromptEngineerNodeData, ImageInputNodeData } from '../types';
-import { generateVideoWithKling } from '../api/kling';
-import { generateVideoWithVeo } from '../api/veo';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useReactFlow, useEdges } from '@xyflow/react';
+import { Film, Sparkles, AlertCircle, Download, Loader2, Settings2, Square } from 'lucide-react';
+import type { VideoGenNodeData } from '../types';
+import { describeError, runVideoModel } from '../api/run';
+import { resolveNodeInputs } from '../graph/resolve';
+import { PROVIDER_LABEL, resolveModel } from '../models';
 import { useSettingsPanel } from '../context/SettingsPanelContext';
-import { HANDLE_TEXT, HANDLE_IMAGE } from './handleStyles';
+import { VIDEO_IMAGE_HANDLES } from '../graph/handles';
+import { handleLayout } from './handleLayout';
+import { InputHandles, InputLegend } from './ImageInputHandles';
 
 function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
   const { updateNodeData, getNode } = useReactFlow();
   const edges = useEdges();
   const { openSettings } = useSettingsPanel();
   const [isProcessing, setIsProcessing] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const getConnectedData = useCallback((): { prompt: string; images: string[] } | null => {
-    const promptEdge = edges.find((e) => e.target === id && e.targetHandle === 'video-text-in');
-    const imageEdges = edges.filter((e) => e.target === id && e.targetHandle === 'video-image-in');
-    let prompt = '';
-    const images: string[] = [];
-    if (promptEdge) {
-      const sourceNode = getNode(promptEdge.source);
-      if (sourceNode) {
-        if (sourceNode.type === 'prompt') prompt = (sourceNode.data as PromptNodeData).prompt || '';
-        else if (sourceNode.type === 'promptEngineer') prompt = (sourceNode.data as PromptEngineerNodeData).enhancedPrompt || '';
-      }
+  const spec = useMemo(() => resolveModel(data.modelId, 'video'), [data.modelId]);
+
+  // One handle per image role the model supports, plus the prompt.
+  const handles = useMemo(
+    () => handleLayout('video-text-in', spec.capabilities.images, VIDEO_IMAGE_HANDLES),
+    [spec]
+  );
+  const connected = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const edge of edges) {
+      if (edge.target !== id || !edge.targetHandle) continue;
+      counts[edge.targetHandle] = (counts[edge.targetHandle] ?? 0) + 1;
     }
-    for (const edge of imageEdges) {
-      const sourceNode = getNode(edge.source);
-      if (!sourceNode) continue;
-      if (sourceNode.type === 'imageGen') {
-        images.push(...((sourceNode.data as ImageGenNodeData).resultImages ?? []));
-      } else if (sourceNode.type === 'imageInput') {
-        images.push(...((sourceNode.data as ImageInputNodeData).images ?? []));
-      }
-    }
-    if (!prompt.trim()) return null;
-    return { prompt, images };
-  }, [edges, getNode, id]);
+    return counts;
+  }, [edges, id]);
 
   const handleGenerate = useCallback(async () => {
-    const connected = getConnectedData();
-    if (!connected || !connected.prompt.trim()) {
-      updateNodeData(id, { ...data, status: 'error', errorMessage: 'Connect a Prompt or Prompt Engineer node first' });
-      return;
-    }
-    const provider = data.provider || 'kling';
-    const apiKeyName = provider === 'veo' ? 'gemini' : provider;
-    const apiKey = localStorage.getItem(`Loom:api:${apiKeyName}`);
+    const { prompt, images } = resolveNodeInputs({
+      nodeId: id,
+      textHandle: 'video-text-in',
+      imageHandles: VIDEO_IMAGE_HANDLES,
+      edges,
+      getNode: (nodeId) => getNode(nodeId) as never,
+    });
 
-    if (!apiKey) {
-      const providerName = provider === 'kling' ? 'Kling' : 'Gemini';
-      updateNodeData(id, { ...data, status: 'error', errorMessage: `Set your ${providerName} API key in Settings` });
-      return;
-    }
+    const controller = new AbortController();
+    abortRef.current = controller;
     setIsProcessing(true);
-    updateNodeData(id, { ...data, status: 'processing', errorMessage: null });
+    updateNodeData(id, { status: 'processing', errorMessage: null, progress: 'Starting' });
+
     try {
-      const referenceImage = connected.images[0] ?? null;
-      const result = provider === 'kling'
-        ? await generateVideoWithKling(connected.prompt, referenceImage, data.mode || 'starting-frame', data.duration || 5, data.aspectRatio || '16:9', apiKey, {
-            negativePrompt: data.negativePrompt,
-            resolution: data.resolution,
-            model: data.model,
-          })
-        : await generateVideoWithVeo(connected.prompt, referenceImage, data.mode || 'starting-frame', data.duration || 5, data.aspectRatio || '16:9', apiKey, {
-            negativePrompt: data.negativePrompt, personGeneration: 'allow_adult',
-          });
-      updateNodeData(id, { ...data, status: 'done', resultVideo: result, errorMessage: null });
-    } catch (err: any) {
-      updateNodeData(id, { ...data, status: 'error', errorMessage: err.message || 'Video generation failed' });
+      const result = await runVideoModel(spec.id, {
+        prompt,
+        images,
+        values: data.params,
+        signal: controller.signal,
+        onProgress: (progress) => updateNodeData(id, { progress }),
+      });
+      updateNodeData(id, { status: 'done', resultVideo: result.video, errorMessage: null, progress: null });
+    } catch (error) {
+      const message = describeError(error, 'Video generation failed');
+      updateNodeData(id, {
+        status: message === 'Cancelled' ? 'idle' : 'error',
+        errorMessage: message === 'Cancelled' ? null : message,
+        progress: null,
+      });
     } finally {
+      abortRef.current = null;
       setIsProcessing(false);
     }
-  }, [getConnectedData, id, data, updateNodeData]);
+  }, [edges, getNode, id, data.params, spec.id, updateNodeData]);
+
+  const handleCancel = useCallback(() => abortRef.current?.abort(), []);
 
   const handleDownload = useCallback(() => {
     if (!data.resultVideo) return;
-    if (data.resultVideo.startsWith('data:')) {
+    if (data.resultVideo.startsWith('data:') || data.resultVideo.startsWith('blob:')) {
       const a = document.createElement('a');
       a.href = data.resultVideo;
-      a.download = `generated-video-${Date.now()}.mp4`;
+      a.download = `loom-video-${Date.now()}.mp4`;
       a.click();
     } else {
-      window.open(data.resultVideo, '_blank');
+      window.open(data.resultVideo, '_blank', 'noopener');
     }
   }, [data.resultVideo]);
 
-  const statusLabel = data.status === 'idle' ? 'Ready' : data.status;
+  const statusLabel =
+    data.status === 'processing' ? data.progress || 'Processing' : data.status === 'idle' ? 'Ready' : data.status;
 
   const statusDotColor =
     data.status === 'done' ? 'bg-primary shadow-[0_0_8px_var(--color-line-strong)]' :
@@ -106,11 +104,24 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
         <button onClick={() => openSettings(id)} className="ml-auto p-1 cursor-pointer text-muted hover:text-primary transition-colors">
           <Settings2 className="w-3.5 h-3.5" />
         </button>
-        <span className="text-[11px] text-muted uppercase font-mono tracking-wider">{data.provider || 'kling'}</span>
+        <span
+          className="flex items-center gap-1.5 min-w-0"
+          title={`${spec.label} — ${spec.vendor} via ${PROVIDER_LABEL[spec.provider]}`}
+        >
+          <span className="text-[11px] text-muted uppercase font-mono tracking-wider truncate max-w-[7.5rem]">
+            {spec.label}
+          </span>
+          <span className="shrink-0 px-1 py-px rounded text-[9px] font-mono tracking-wider text-muted border border-line-subtle">
+            {PROVIDER_LABEL[spec.provider]}
+          </span>
+        </span>
       </div>
 
       {/* Body */}
       <div className="p-4 space-y-3">
+        {/* Input legend — mirrors the handles down the left edge */}
+        <InputLegend entries={handles} connected={connected} />
+
         {/* Status bar */}
         <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-surface-recessed border border-line-subtle">
           <div className={`w-2 h-2 rounded-full ${statusDotColor}`} />
@@ -140,21 +151,26 @@ function VideoGenNode({ id, data }: { id: string; data: VideoGenNodeData }) {
         )}
 
         {/* Action button */}
-        <button
-          onClick={handleGenerate}
-          disabled={isProcessing}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full glass-button-primary text-[13px] font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
-        >
-          {isProcessing ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating...</>
-           : data.status === 'done' ? <><Sparkles className="w-3.5 h-3.5" /> Regenerate</>
-           : <><Film className="w-3.5 h-3.5" /> Generate Video</>}
-        </button>
+        {isProcessing ? (
+          <button
+            onClick={handleCancel}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full glass-button text-[13px] font-medium cursor-pointer"
+          >
+            <Square className="w-3 h-3" /> Cancel
+          </button>
+        ) : (
+          <button
+            onClick={handleGenerate}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full glass-button-primary text-[13px] font-medium cursor-pointer"
+          >
+            {data.status === 'done' ? <Sparkles className="w-3.5 h-3.5" /> : <Film className="w-3.5 h-3.5" />}
+            {data.status === 'done' ? 'Regenerate' : 'Generate Video'}
+          </button>
+        )}
       </div>
 
       </div>
-      {/* Handles */}
-      <Handle type="target" position={Position.Left} id="video-text-in" className={HANDLE_TEXT} style={{ top: '35%' }} />
-      <Handle type="target" position={Position.Left} id="video-image-in" className={HANDLE_IMAGE} style={{ top: '65%' }} />
+      <InputHandles entries={handles} />
     </div>
   );
 }
