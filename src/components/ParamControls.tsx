@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { EnumOption, ParamSpec, ParamValue, ParamValues } from '../models/types';
 import { usePreventCanvasZoom } from '../hooks/usePreventCanvasZoom';
@@ -30,7 +31,55 @@ function SelectControl({
   );
 }
 
-/** Renders a model's declared parameters as Loom's pill/toggle controls. */
+function SliderControl({
+  label,
+  min,
+  max,
+  step,
+  value,
+  displayValue = String(value),
+  onChange,
+}: {
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+  displayValue?: string;
+  onChange: (value: number) => void;
+}) {
+  const progress = max === min ? 0 : ((value - min) / (max - min)) * 100;
+
+  return (
+    <div className="flex items-center gap-3">
+      <input
+        type="range"
+        aria-label={label}
+        aria-valuetext={displayValue}
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="param-slider min-w-0 flex-1"
+        style={{ '--slider-progress': `${progress}%` } as CSSProperties}
+      />
+      <output className="min-w-11 rounded-lg border border-line bg-surface px-2 py-1 text-center font-mono text-[12px] text-primary">
+        {displayValue}
+      </output>
+    </div>
+  );
+}
+
+function numericEnumOptions(options: EnumOption[]): EnumOption[] | undefined {
+  if (options.length < 3) return undefined;
+  const numericValues = options.map((option) => Number(option.value));
+  if (numericValues.some((value) => !Number.isFinite(value))) return undefined;
+  if (numericValues.some((value, index) => index > 0 && value <= numericValues[index - 1])) return undefined;
+  return options;
+}
+
+/** Renders a model's declared parameters with sliders, selects, pills and toggles. */
 export default function ParamControls({
   params,
   values,
@@ -59,6 +108,8 @@ function Control({
   onChange: (key: string, value: ParamValue) => void;
 }) {
   const value = values[param.key] ?? param.default;
+  const sliderEnumOptions =
+    param.type === 'enum' && param.control !== 'select' ? numericEnumOptions(param.options) : undefined;
 
   return (
     <div>
@@ -72,7 +123,24 @@ function Control({
         />
       )}
 
-      {param.type === 'enum' && param.control !== 'select' && (
+      {param.type === 'enum' && sliderEnumOptions && (
+        <SliderControl
+          label={param.label}
+          min={0}
+          max={sliderEnumOptions.length - 1}
+          step={1}
+          value={Math.max(
+            0,
+            sliderEnumOptions.findIndex((option) => option.value === String(value))
+          )}
+          displayValue={
+            sliderEnumOptions.find((option) => option.value === String(value))?.label ?? String(value)
+          }
+          onChange={(index) => onChange(param.key, sliderEnumOptions[index].value)}
+        />
+      )}
+
+      {param.type === 'enum' && param.control !== 'select' && !sliderEnumOptions && (
         <div className={param.wide ? 'grid grid-cols-3 gap-1.5' : 'flex gap-1.5 flex-wrap'}>
           {param.options.map((option) => (
             <button
@@ -99,35 +167,40 @@ function Control({
         />
       )}
 
-      {param.type === 'number' && param.choices && param.control !== 'select' && (
-        <div className="grid grid-cols-4 gap-1.5">
-          {param.choices.map((choice) => (
-            <button
-              key={choice}
-              onClick={() => onChange(param.key, choice)}
-              className={`px-3 py-2 rounded-full text-[11px] font-medium cursor-pointer transition-all duration-200 ${
-                value === choice ? 'glass-button-primary' : 'glass-toggle'
-              }`}
-            >
-              {param.key === 'duration' ? `${choice}s` : choice}
-            </button>
-          ))}
-        </div>
+      {param.type === 'number' && param.choices && param.control !== 'select' && param.control !== 'input' && (
+        <SliderControl
+          label={param.label}
+          min={0}
+          max={param.choices.length - 1}
+          step={1}
+          value={Math.max(0, param.choices.indexOf(Number(value)))}
+          displayValue={param.key === 'duration' ? `${Number(value)}s` : String(value)}
+          onChange={(index) => onChange(param.key, param.choices![index])}
+        />
       )}
 
-      {param.type === 'number' && !param.choices && (
-        <div className="flex items-center gap-3">
-          <input
-            type="range"
-            min={param.min}
-            max={param.max}
-            step={param.step ?? 1}
-            value={Number(value)}
-            onChange={(e) => onChange(param.key, Number(e.target.value))}
-            className="flex-1 accent-primary"
-          />
-          <span className="text-[12px] text-secondary font-mono w-10 text-right">{Number(value)}</span>
-        </div>
+      {param.type === 'number' && !param.choices && param.control !== 'input' && (
+        <SliderControl
+          label={param.label}
+          min={param.min}
+          max={param.max}
+          step={param.step ?? 1}
+          value={Number(value)}
+          onChange={(next) => onChange(param.key, next)}
+        />
+      )}
+
+      {param.type === 'number' && param.control === 'input' && (
+        <input
+          type="number"
+          aria-label={param.label}
+          min={param.min}
+          max={param.max}
+          step={param.step ?? 1}
+          value={Number(value)}
+          onChange={(event) => onChange(param.key, Number(event.target.value))}
+          className="glass-input w-full px-3.5 py-2 text-[12px] text-primary"
+        />
       )}
 
       {param.type === 'boolean' && (

@@ -41,9 +41,9 @@ export interface EnumParam extends ParamBase {
   type: 'enum';
   options: EnumOption[];
   default: string;
-  /** Render as a wrapped pill grid rather than an equal-width row. */
+  /** Render non-numeric options as a wrapped pill grid rather than an equal-width row. */
   wide?: boolean;
-  /** `select` renders a dropdown instead of pills — better for long lists. */
+  /** `select` renders a dropdown; ascending numeric pill options become a slider automatically. */
   control?: 'pills' | 'select';
 }
 
@@ -53,7 +53,7 @@ export interface NumberParam extends ParamBase {
   max: number;
   step?: number;
   default: number;
-  /** Render discrete options instead of a slider. */
+  /** Restrict the slider to these discrete values. */
   choices?: number[];
   /** `select` renders the choices as a dropdown, `input` a plain number field. */
   control?: 'pills' | 'select' | 'input';
