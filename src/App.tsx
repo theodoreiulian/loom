@@ -22,7 +22,6 @@ import EmptyState from './components/EmptyState';
 import EdgeContextMenu from './components/EdgeContextMenu';
 import NodeSettingsPanel from './components/NodeSettingsPanel';
 import ApiKeyModal from './components/ApiKeyModal';
-import ConfirmDialog from './components/ConfirmDialog';
 import { SettingsPanelProvider } from './context/SettingsPanelContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { ProjectProvider, useProject } from './context/ProjectContext';
@@ -42,7 +41,6 @@ function Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showSettings, setShowSettings] = useState(false);
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -215,15 +213,6 @@ function Flow() {
     [screenToFlowPosition, addNodes, setEdges]
   );
 
-  const handleClearCanvas = useCallback(() => {
-    setShowClearConfirm(true);
-  }, []);
-
-  const confirmClearCanvas = useCallback(() => {
-    setNodes([]);
-    setEdges([]);
-  }, [setNodes, setEdges]);
-
   const onEdgeContextMenu = useCallback(
     (event: React.MouseEvent, edge: any) => {
       event.preventDefault();
@@ -245,10 +234,7 @@ function Flow() {
 
   return (
     <>
-      <Header
-        onOpenSettings={() => setShowSettings(true)}
-        onClearCanvas={handleClearCanvas}
-      />
+      <Header onOpenSettings={() => setShowSettings(true)} />
 
       <Sidebar onDragStart={handleDragStart} onAddTemplate={handleAddTemplate} />
 
@@ -301,15 +287,6 @@ function Flow() {
       <NodeSettingsPanel />
 
       <ApiKeyModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
-
-      <ConfirmDialog
-        isOpen={showClearConfirm}
-        title="Clear canvas"
-        message="This will remove all nodes and connections. You can't undo this."
-        confirmLabel="Clear"
-        onConfirm={confirmClearCanvas}
-        onClose={() => setShowClearConfirm(false)}
-      />
     </>
   );
 }

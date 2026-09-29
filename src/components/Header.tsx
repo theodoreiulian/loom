@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Settings, Sun, Moon, ChevronLeft, Edit2 } from 'lucide-react';
+import { Settings, Sun, Moon, ChevronLeft, Edit2 } from 'lucide-react';
 import logo from '../assets/sublogo.png';
 import { useTheme } from '../context/ThemeContext';
 import { useProject } from '../context/ProjectContext';
@@ -7,10 +7,9 @@ import { updateProjectName } from '../store/projectStore';
 
 interface HeaderProps {
   onOpenSettings: () => void;
-  onClearCanvas: () => void;
 }
 
-export default function Header({ onOpenSettings, onClearCanvas }: HeaderProps) {
+export default function Header({ onOpenSettings }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const { currentProject, closeProject, refreshProjectInfo } = useProject();
   const isLight = theme === 'light';
@@ -110,7 +109,7 @@ export default function Header({ onOpenSettings, onClearCanvas }: HeaderProps) {
 
         <div className="flex-1" />
 
-        {/* Right: Theme toggle + Clear + Settings */}
+        {/* Right: Theme toggle + Settings */}
         <div className="flex items-center gap-1.5 pr-2">
           <button
             onClick={toggleTheme}
@@ -118,13 +117,6 @@ export default function Header({ onOpenSettings, onClearCanvas }: HeaderProps) {
             className="glass-button flex items-center justify-center w-8 h-8 p-0"
           >
             {isLight ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
-          </button>
-          <button
-            onClick={onClearCanvas}
-            className="glass-button flex items-center gap-1.5 px-3 py-1.5 text-[12px]"
-          >
-            <Trash2 className="w-3 h-3" />
-            <span className="hidden sm:inline font-medium">Clear</span>
           </button>
           <button
             onClick={onOpenSettings}
