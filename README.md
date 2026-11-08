@@ -48,6 +48,17 @@ npm run lint
 npm run build
 ```
 
+## Search indexing
+
+The production site is https://genloom.net/. Vite copies `public/sitemap.xml`
+and `public/robots.txt` into the build, serving them at `/sitemap.xml` and
+`/robots.txt`. The sitemap lists the landing page; section anchors and the
+`#/editor` workspace are not separate pages.
+
+After deploying, submit `https://genloom.net/sitemap.xml` in Google Search
+Console's Sitemaps report. If the production domain changes, update both files
+and the canonical URL in `index.html` together.
+
 ## Demos
 
 Setup and key management:
