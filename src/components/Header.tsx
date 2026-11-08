@@ -98,14 +98,14 @@ export default function Header({ onOpenSettings }: HeaderProps) {
         </div>
 
         {/* Center: Logo */}
-        <div className="flex items-center justify-center absolute left-1/2 -translate-x-1/2 pointer-events-none">
+        <a href="#" aria-label="Loom home" title="Loom home" className="flex items-center justify-center absolute left-1/2 -translate-x-1/2">
           <img
             src={logo}
             alt="Loom"
             className="h-7 w-auto transition-[filter] duration-300 opacity-60"
             style={{ filter: isLight ? 'invert(1)' : 'none' }}
           />
-        </div>
+        </a>
 
         <div className="flex-1" />
 
