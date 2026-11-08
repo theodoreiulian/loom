@@ -54,7 +54,7 @@ function LoomMark({ className = "" }: { className?: string }) {
       className={className}
       width="32"
       height="32"
-      viewBox="0 0 32 32"
+      viewBox="-1 1.5 34 34"
       fill="none"
       aria-hidden="true"
     >
